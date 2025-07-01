@@ -1,6 +1,9 @@
 package org.example.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import jakarta.persistence.ManyToOne;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,22 +14,19 @@ import org.example.entity.base.BaseEntity;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 public class Review extends BaseEntity {
-    @OneToOne
-    @JoinColumn(name = "order_id", nullable = false)
+
+    private Integer rating;
+
+    private String comment;
+
+    @ManyToOne
     private Order order;
 
     @ManyToOne
-    @JoinColumn(name = "customer_id", nullable = false)
-    private User author;
+    private User customer;
 
     @ManyToOne
-    @JoinColumn(name = "specialist_id", nullable = false)
-    private User specialist;
-
-    @Column(nullable = false)
-    private Integer rating;
-
-    @Column(columnDefinition = "TEXT")
-    private String comment;
+    private User expert;
 }

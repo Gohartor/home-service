@@ -1,6 +1,9 @@
 package org.example.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import jakarta.persistence.ManyToOne;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,21 +15,18 @@ import java.time.ZonedDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 public class Proposal extends BaseEntity {
+
+    private Double proposedPrice;
+
+    private ZonedDateTime proposedStartAt;
+
+    private Integer duration;
+
     @ManyToOne
-    @JoinColumn(name = "order_id", nullable = false)
     private Order order;
 
     @ManyToOne
-    @JoinColumn(name = "specialist_id", nullable = false)
-    private User specialist;
-
-    @Column(nullable = false)
-    private Double proposedPrice;
-
-    @Column
-    private ZonedDateTime proposedStartAt;
-
-    @Column
-    private Integer duration;
+    private User expert;
 }

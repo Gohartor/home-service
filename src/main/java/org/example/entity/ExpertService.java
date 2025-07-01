@@ -1,6 +1,9 @@
 package org.example.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import jakarta.persistence.ManyToOne;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,14 +14,12 @@ import org.example.entity.base.BaseEntity;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 public class ExpertService extends BaseEntity {
 
+    @ManyToOne
+    private User expert;
 
     @ManyToOne
-    @JoinColumn(name = "specialist_id", nullable = false)
-    private User specialist;
-
-    @ManyToOne
-    @JoinColumn(name = "service_id", nullable = false)
     private Service service;
 }
