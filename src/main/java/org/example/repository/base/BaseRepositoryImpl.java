@@ -100,15 +100,15 @@ public class BaseRepositoryImpl
     }
 
 
-    @Override
-    public void beginTransaction() {
-        em.getTransaction().begin();
-    }
-
-    @Override
-    public void commitTransaction() {
-        em.getTransaction().commit();
-    }
+//    @Override
+//    public void beginTransaction() {
+//        em.getTransaction().begin();
+//    }
+//
+//    @Override
+//    public void commitTransaction() {
+//        em.getTransaction().commit();
+//    }
 
 
 

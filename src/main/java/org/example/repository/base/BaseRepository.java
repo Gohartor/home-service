@@ -22,7 +22,7 @@ public interface BaseRepository
 
     boolean existsById(ID id);
 
-    void beginTransaction();
-
-    void commitTransaction();
+//    void beginTransaction();
+//
+//    void commitTransaction();
 }

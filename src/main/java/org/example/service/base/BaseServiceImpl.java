@@ -1,6 +1,5 @@
 package org.example.service.base;
 
-import lombok.RequiredArgsConstructor;
 import org.example.entity.base.BaseEntity;
 import org.example.repository.base.BaseRepository;
 
@@ -8,21 +7,24 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
 
-@RequiredArgsConstructor
-public class BaseServiceImpl<T extends BaseEntity, ID extends Serializable,R extends BaseRepository<T, ID>>
-        implements BaseService<T, ID> {
 
+
+public class BaseServiceImpl
+        <T extends BaseEntity,
+                ID extends Serializable,
+                R extends BaseRepository<T, ID>>
+        implements BaseService<T, ID> {
 
     protected final R repository;
 
-    @Override
-    public T save(T entity) {
-        repository.beginTransaction();
-        entity = repository.save(entity);
-        repository.commitTransaction();
-        return entity;
+    public BaseServiceImpl(R repository) {
+        this.repository = repository;
     }
 
+    @Override
+    public T save(T entity) {
+        return repository.save(entity);
+    }
 
     @Override
     public Optional<T> findById(ID id) {
@@ -34,7 +36,6 @@ public class BaseServiceImpl<T extends BaseEntity, ID extends Serializable,R ext
         return repository.findAll();
     }
 
-
     @Override
     public long countAll() {
         return repository.countAll();
@@ -42,11 +43,8 @@ public class BaseServiceImpl<T extends BaseEntity, ID extends Serializable,R ext
 
     @Override
     public void deleteById(ID id) {
-        repository.beginTransaction();
         repository.deleteById(id);
-        repository.commitTransaction();
     }
-
 
     @Override
     public boolean existsById(ID id) {
