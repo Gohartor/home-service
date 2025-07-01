@@ -1,5 +1,6 @@
 package org.example.repository;
 
+import jakarta.persistence.EntityManager;
 import org.example.entity.Order;
 import org.example.entity.Service;
 import org.example.repository.base.BaseRepositoryImpl;
@@ -12,4 +13,7 @@ public class OrderRepositoryImpl
         implements OrderRepository  {
 
 
+    public OrderRepositoryImpl() {
+        this.domainClass = Order.class;
+    }
 }

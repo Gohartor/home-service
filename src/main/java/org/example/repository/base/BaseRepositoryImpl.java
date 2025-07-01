@@ -29,6 +29,7 @@ public class BaseRepositoryImpl
         this.domainClass = domainClass;
     }
 
+
     public BaseRepositoryImpl() {
 
     }
@@ -96,6 +97,17 @@ public class BaseRepositoryImpl
         );
         return em.createQuery(query).getSingleResult() > 0;
 
+    }
+
+
+    @Override
+    public void beginTransaction() {
+        em.getTransaction().begin();
+    }
+
+    @Override
+    public void commitTransaction() {
+        em.getTransaction().commit();
     }
 
 
