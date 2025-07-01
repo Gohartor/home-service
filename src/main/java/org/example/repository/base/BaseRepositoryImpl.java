@@ -20,19 +20,14 @@ public class BaseRepositoryImpl
         implements BaseRepository<T, ID> {
 
     @PersistenceContext
-    private EntityManager em;
+    protected EntityManager em;
 
     protected Class<T> domainClass;
-
-    public BaseRepositoryImpl(EntityManager em, Class<T> domainClass) {
-        this.em = em;
-        this.domainClass = domainClass;
-    }
-
 
     public BaseRepositoryImpl() {
 
     }
+
 
     @Override
     public T save(T entity) {
