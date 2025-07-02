@@ -24,4 +24,5 @@ public class Transaction extends BaseEntity {
 
     @ManyToOne
     private Wallet wallet;
+    // two wallet or two transaction
 }

@@ -16,6 +16,7 @@ import org.example.entity.base.BaseEntity;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ExpertService extends BaseEntity {
+    //change to many to many
 
     @ManyToOne
     private User expert;

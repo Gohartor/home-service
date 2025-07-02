@@ -1,7 +1,6 @@
 package org.example.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,6 +19,7 @@ public class User extends BaseEntity {
 
     private String lastName;
 
+    @Column(unique = true)
     private String email;
 
     private String password;
@@ -27,7 +27,9 @@ public class User extends BaseEntity {
     private String profilePhoto;
 //    private Byte[] profilePhoto;
 
+    @Enumerated(EnumType.STRING)
     private RoleType role;
 
+    @Enumerated(EnumType.STRING)
     private ExpertStatus expertStatus;
 }
