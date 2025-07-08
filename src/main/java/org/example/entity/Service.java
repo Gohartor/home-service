@@ -1,14 +1,14 @@
 package org.example.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.example.entity.base.BaseEntity;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "services")
@@ -26,4 +26,7 @@ public class Service extends BaseEntity {
 
     @ManyToOne
     private Service parentService;
+
+    @ManyToMany(mappedBy = "services")
+    private Set<User> experts = new HashSet<>();
 }

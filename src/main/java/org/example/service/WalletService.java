@@ -1,10 +1,14 @@
 package org.example.service;
 
-import org.example.entity.Order;
 import org.example.entity.Wallet;
-import org.example.service.base.BaseService;
 
-public interface WalletService
-        extends BaseService<Wallet, Long> {
+import java.util.List;
+import java.util.Optional;
 
+public interface WalletService {
+    Wallet save(Wallet entity);
+    Optional<Wallet> findById(Long id);
+    List<Wallet> findAll();
+    void deleteById(Long id);
+    boolean existsById(Long id);
 }

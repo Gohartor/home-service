@@ -6,6 +6,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.example.entity.base.BaseEntity;
+import org.example.entity.enumerator.ExpertStatus;
+import org.example.entity.enumerator.RoleType;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -25,11 +30,18 @@ public class User extends BaseEntity {
     private String password;
 
     private String profilePhoto;
-//    private Byte[] profilePhoto;
 
     @Enumerated(EnumType.STRING)
     private RoleType role;
 
     @Enumerated(EnumType.STRING)
     private ExpertStatus expertStatus;
+
+    @ManyToMany
+    @JoinTable(
+            name = "user_services",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "service_id")
+    )
+    private Set<Service> services = new HashSet<>();
 }

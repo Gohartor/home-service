@@ -1,4 +1,4 @@
-package org.example.entity;
+package org.example.entity.enumerator;
 
 public enum RoleType {
     ADMIN, EXPERT, CUSTOMER

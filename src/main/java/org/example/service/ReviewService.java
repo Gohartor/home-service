@@ -1,10 +1,14 @@
 package org.example.service;
 
-import org.example.entity.Order;
 import org.example.entity.Review;
-import org.example.service.base.BaseService;
 
-public interface ReviewService
-        extends BaseService<Review, Long> {
+import java.util.List;
+import java.util.Optional;
 
+public interface ReviewService {
+    Review save(Review entity);
+    Optional<Review> findById(Long id);
+    List<Review> findAll();
+    void deleteById(Long id);
+    boolean existsById(Long id);
 }

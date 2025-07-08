@@ -10,7 +10,7 @@ import java.util.List;
 public interface ServiceRepository
         extends BaseRepository<Service, Long> {
 
-    long countByNameParentService(String name, Service parentService);
+    long countByNameAndParentService(String name, Service parentService);
     List<Service> findByParentService(Service parentService);
 
 }
