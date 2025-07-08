@@ -29,4 +29,8 @@ public class Proposal extends BaseEntity {
 
     @ManyToOne
     private User expert;
+
 }
+
+
+

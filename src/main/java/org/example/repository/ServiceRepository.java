@@ -13,4 +13,7 @@ public interface ServiceRepository
     long countByNameAndParentService(String name, Service parentService);
     List<Service> findByParentService(Service parentService);
 
+    List<Service> findByParentServiceIsNull();
+
+
 }

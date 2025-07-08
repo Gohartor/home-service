@@ -17,7 +17,7 @@ import org.example.entity.base.BaseEntity;
 @AllArgsConstructor
 public class Wallet extends BaseEntity {
 
-    private Double balance;
+    private Double balance = 0.0;
 
     @ManyToOne
     private User user;

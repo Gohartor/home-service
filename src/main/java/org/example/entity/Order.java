@@ -1,13 +1,13 @@
 package org.example.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.example.entity.base.BaseEntity;
+import org.example.entity.enumerator.ServiceStatus;
+
 import java.time.ZonedDateTime;
 
 @Entity
@@ -29,4 +29,8 @@ public class Order extends BaseEntity {
 
     @ManyToOne
     private Service service;
+
+    @Enumerated(EnumType.STRING)
+    private ServiceStatus status;
+
 }

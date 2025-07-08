@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.example.entity.base.BaseEntity;
+import org.example.entity.enumerator.ServiceStatus;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -22,11 +23,18 @@ public class Service extends BaseEntity {
     private String name;
 
     private Double basePrice;
+
     private String description;
 
     @ManyToOne
     private Service parentService;
 
+
     @ManyToMany(mappedBy = "services")
     private Set<User> experts = new HashSet<>();
+
+    @OneToMany(mappedBy = "service")
+    private Set<Proposal> proposals = new HashSet<>();
+
+
 }

@@ -2,6 +2,7 @@ package org.example.service;
 
 import org.example.entity.Proposal;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -11,4 +12,6 @@ public interface ProposalService {
     List<Proposal> findAll();
     void deleteById(Long id);
     boolean existsById(Long id);
+    long countAllByOrder_Id(Long orderId);
+
 }

@@ -1,6 +1,7 @@
 package org.example.entity;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
@@ -22,7 +23,9 @@ public class Transaction extends BaseEntity {
     private String type;
     private Long relatedOrderId;
 
-    @ManyToOne
+    @OneToOne
     private Wallet wallet;
-    // two wallet or two transaction
+
+
+
 }

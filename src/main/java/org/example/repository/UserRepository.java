@@ -5,5 +5,5 @@ import org.example.repository.base.BaseRepository;
 
 public interface UserRepository extends BaseRepository<User, Long> {
 
-    //List<User> findByEmail(String email);
+    //Optional<User> findByEmail(String email);
 }
