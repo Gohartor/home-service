@@ -46,6 +46,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean isManager(User user) {
-        return user != null && user.getRole() == RoleType.ADMIN;
+        return user == null || user.getRole() != RoleType.ADMIN;
     }
 }

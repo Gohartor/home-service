@@ -51,7 +51,7 @@ public class ServiceServiceImpl implements ServiceService {
     @Transactional
     public Service createService(Service service) {
         User currentUser = userService.findById(1L).orElseThrow(() -> new IllegalArgumentException("User not found"));
-        if (!userService.isManager(currentUser)) {
+        if (userService.isManager(currentUser)) {
             throw new SecurityException("Only managers can create services!");
         }
         Service parent = service.getParentService();
@@ -65,7 +65,7 @@ public class ServiceServiceImpl implements ServiceService {
     @Override
     public List<Service> findByParentService(Service parentService) {
         User currentUser = userService.findById(1L).orElseThrow(() -> new IllegalArgumentException("User not found"));
-        if (!userService.isManager(currentUser)) {
+        if (userService.isManager(currentUser)) {
             throw new SecurityException("Only managers can view services!");
         }
         return repository.findByParentService(parentService);

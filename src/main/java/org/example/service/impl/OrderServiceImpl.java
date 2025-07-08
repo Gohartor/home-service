@@ -6,6 +6,7 @@ import org.example.repository.OrderRepository;
 import org.example.repository.ProposalRepository;
 import org.example.service.OrderService;
 import org.example.service.ProposalService;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,7 +18,7 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository repository;
     private final ProposalService proposalService;
 
-    public OrderServiceImpl(OrderRepository repository, ProposalService proposalService) {
+    public OrderServiceImpl(OrderRepository repository, @Lazy ProposalService proposalService) {
         this.repository = repository;
         this.proposalService = proposalService;
     }

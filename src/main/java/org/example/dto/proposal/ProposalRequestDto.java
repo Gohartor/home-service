@@ -13,7 +13,7 @@ import java.time.ZonedDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProposalRequestDTO {
+public class ProposalRequestDto {
 
     @NotNull
     @Min(value = 0)

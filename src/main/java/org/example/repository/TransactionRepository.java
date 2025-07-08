@@ -9,7 +9,7 @@ import java.util.List;
 public interface TransactionRepository
         extends BaseRepository<Transaction, Long> {
 
-    List<Transaction> findByExpertWallet_Id(Long walletId);
+    List<Transaction> findByWallet_Id(Long walletId);
 
     List<Transaction> findByType(String type);
 

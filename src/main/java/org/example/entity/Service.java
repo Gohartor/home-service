@@ -33,8 +33,6 @@ public class Service extends BaseEntity {
     @ManyToMany(mappedBy = "services")
     private Set<User> experts = new HashSet<>();
 
-    @OneToMany(mappedBy = "service")
-    private Set<Proposal> proposals = new HashSet<>();
 
 
 }

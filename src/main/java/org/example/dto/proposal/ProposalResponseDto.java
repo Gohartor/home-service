@@ -12,7 +12,7 @@ import java.time.ZonedDateTime;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProposalResponseDTO {
+public class ProposalResponseDto {
     private Long id;
     private Double proposedPrice;
     private ZonedDateTime proposedStartAt;
