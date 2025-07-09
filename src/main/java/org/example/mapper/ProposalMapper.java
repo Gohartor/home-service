@@ -15,6 +15,5 @@ public interface ProposalMapper {
     Proposal toProposal(ProposalRequestDto dto);
 
     ProposalResponseDto toDto(Proposal proposal);
-
-    List<ProposalResponseDto> toDtoList(List<Proposal> proposals);
+    
 }
