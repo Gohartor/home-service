@@ -1,14 +1,20 @@
 package org.example.service.impl;
 
+import org.example.dto.service.ServiceRequestDto;
+import org.example.dto.service.ServiceResponseDto;
 import org.example.entity.Service;
 import org.example.entity.User;
+import org.example.exception.DuplicateException;
+import org.example.mapper.ServiceMapper;
 import org.example.repository.ServiceRepository;
 import org.example.service.ServiceService;
 import org.example.service.UserService;
 
 import org.springframework.transaction.annotation.Transactional;
+import org.webjars.NotFoundException;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @org.springframework.stereotype.Service
@@ -16,58 +22,82 @@ public class ServiceServiceImpl implements ServiceService {
 
     private final ServiceRepository repository;
     private final UserService userService;
+    private final ServiceMapper serviceMapper;
 
-    public ServiceServiceImpl(ServiceRepository repository, UserService userService) {
+    public ServiceServiceImpl(ServiceRepository repository,
+                              UserService userService,
+                              ServiceMapper serviceMapper) {
         this.repository = repository;
         this.userService = userService;
+        this.serviceMapper = serviceMapper;
     }
 
-    @Override
-    public Service save(Service entity) {
-        return repository.save(entity);
-    }
+
 
     @Override
-    public Optional<Service> findById(Long id) {
-        return repository.findById(id);
-    }
+    @Transactional
+    public ServiceResponseDto createService(ServiceRequestDto dto) {
+        // Parent mapping
+        Service parent = null;
+        if (dto.parentId() != null) {
+            parent = repository.findById(dto.parentId())
+                    .orElseThrow(() -> new NotFoundException("Parent not found"));
+        }
+        if (repository.existsByNameAndParentService(dto.name(), parent))
+            throw new DuplicateException("Service name must be unique under the parent");
 
-    @Override
-    public List<Service> findAll() {
-        return repository.findAll();
-    }
+        Service entity = serviceMapper.toEntity(dto);
+        entity.setParentService(parent);  // اگر parent در Mapper map نشده بود
 
-    @Override
-    public void deleteById(Long id) {
-        repository.deleteById(id);
-    }
-
-    @Override
-    public boolean existsById(Long id) {
-        return repository.existsById(id);
+        Service saved = repository.save(entity);
+        return serviceMapper.toDto(saved);
     }
 
     @Override
     @Transactional
-    public Service createService(Service service) {
-        User currentUser = userService.findById(1L).orElseThrow(() -> new IllegalArgumentException("User not found"));
-        if (userService.isManager(currentUser)) {
-            throw new SecurityException("Only managers can create services!");
+    public ServiceResponseDto updateService(Long id, ServiceRequestDto dto) {
+        Service service = repository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Service not found"));
+        Service parent = null;
+        if (dto.parentId() != null) {
+            parent = repository.findById(dto.parentId())
+                    .orElseThrow(() -> new NotFoundException("Parent not found"));
         }
-        Service parent = service.getParentService();
-        long count = repository.countByNameAndParentService(service.getName(), parent);
-        if (count > 0) {
-            throw new IllegalArgumentException("Service name already exists under this parent!");
+        // Uniqueness check
+        if (!service.getName().equals(dto.name()) ||
+                !Objects.equals(
+                        service.getParentService() == null ? null : service.getParentService().getId(),
+                        dto.parentId())) {
+            if (repository.existsByNameAndParentService(dto.name(), parent))
+                throw new DuplicateException("Service name must be unique under the parent");
         }
-        return save(service);
+
+        serviceMapper.updateEntityFromDto(dto, service);
+        service.setParentService(parent);
+
+        Service updated = repository.save(service);
+        return serviceMapper.toDto(updated);
     }
 
     @Override
-    public List<Service> findByParentService(Service parentService) {
-        User currentUser = userService.findById(1L).orElseThrow(() -> new IllegalArgumentException("User not found"));
-        if (userService.isManager(currentUser)) {
-            throw new SecurityException("Only managers can view services!");
+    public void deleteService(Long id) {
+        Service service = repository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Service not found"));
+        repository.delete(service);
+    }
+
+    @Override
+    public List<ServiceResponseDto> listServices(Long parentId) {
+        List<Service> services;
+        if (parentId == null) {
+            services = repository.findByParentService(null);
+        } else {
+            Service parent = repository.findById(parentId)
+                    .orElseThrow(() -> new NotFoundException("Parent not found"));
+            services = repository.findByParentService(parent);
         }
-        return repository.findByParentService(parentService);
+        return services.stream()
+                .map(serviceMapper::toDto)
+                .toList();
     }
 }
