@@ -21,23 +21,29 @@ import java.util.Optional;
 public class ServiceServiceImpl implements ServiceService {
 
     private final ServiceRepository repository;
-    private final UserService userService;
     private final ServiceMapper serviceMapper;
 
     public ServiceServiceImpl(ServiceRepository repository,
-                              UserService userService,
                               ServiceMapper serviceMapper) {
         this.repository = repository;
-        this.userService = userService;
         this.serviceMapper = serviceMapper;
     }
 
 
+    @Override
+    public Service save(Service service) {
+        return repository.save(service);
+    }
+
+    @Override
+    public Optional<Service> findById(Long id) {
+        return repository.findById(id);
+    }
 
     @Override
     @Transactional
     public ServiceResponseDto createService(ServiceRequestDto dto) {
-        // Parent mapping
+
         Service parent = null;
         if (dto.parentId() != null) {
             parent = repository.findById(dto.parentId())
@@ -47,7 +53,7 @@ public class ServiceServiceImpl implements ServiceService {
             throw new DuplicateException("Service name must be unique under the parent");
 
         Service entity = serviceMapper.toEntity(dto);
-        entity.setParentService(parent);  // اگر parent در Mapper map نشده بود
+        entity.setParentService(parent);
 
         Service saved = repository.save(entity);
         return serviceMapper.toDto(saved);
@@ -63,7 +69,8 @@ public class ServiceServiceImpl implements ServiceService {
             parent = repository.findById(dto.parentId())
                     .orElseThrow(() -> new NotFoundException("Parent not found"));
         }
-        // Uniqueness check
+
+
         if (!service.getName().equals(dto.name()) ||
                 !Objects.equals(
                         service.getParentService() == null ? null : service.getParentService().getId(),

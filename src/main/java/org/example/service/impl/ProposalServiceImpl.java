@@ -89,7 +89,6 @@ public class ProposalServiceImpl implements ProposalService {
 
         Proposal saved = repository.save(proposal);
 
-        // اگر اولین پیشنهاد است...
         if (repository.countAllByOrder_Id(dto.getOrderId()) == 1) {
             order.setStatus(ServiceStatus.AWAITING_SPECIALIST);
             orderService.save(order);
