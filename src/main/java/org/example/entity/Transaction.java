@@ -23,7 +23,7 @@ public class Transaction extends BaseEntity {
     private String type;
     private Long relatedOrderId;
 
-    @OneToOne
+    @ManyToOne
     private Wallet wallet;
 
 

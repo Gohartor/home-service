@@ -3,6 +3,8 @@ package org.example.service.impl;
 import org.example.entity.Transaction;
 import org.example.repository.TransactionRepository;
 import org.example.service.TransactionService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -41,4 +43,15 @@ public class TransactionServiceImpl implements TransactionService {
     public boolean existsById(Long id) {
         return repository.existsById(id);
     }
+
+    @Override
+    public Page<Transaction> findAllByWalletIdOrderByCreateDateDesc(Long walletId, Pageable pageable) {
+        return repository.findAllByWalletIdOrderByCreateDateDesc(walletId, pageable);
+    }
+
+    @Override
+    public List<Transaction> findAllByWalletIdOrderByCreateDateDesc(Long walletId) {
+        return repository.findAllByWalletIdOrderByCreateDateDesc(walletId);
+    }
+
 }
