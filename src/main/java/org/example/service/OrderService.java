@@ -2,6 +2,8 @@ package org.example.service;
 
 import org.example.dto.expert.ExpertOrderDetailDto;
 import org.example.dto.expert.ExpertOrderSummaryDto;
+import org.example.dto.expert.ExpertRatingDto;
+import org.example.dto.expert.OrderRatingDto;
 import org.example.entity.Order;
 import org.example.entity.Proposal;
 
@@ -21,4 +23,5 @@ public interface OrderService {
 
     List<ExpertOrderSummaryDto> getExpertOrderHistory(Long expertId);
     ExpertOrderDetailDto getExpertOrderDetail(Long orderId, Long expertId);
+
 }

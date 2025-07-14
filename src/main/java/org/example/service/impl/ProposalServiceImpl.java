@@ -26,14 +26,12 @@ public class ProposalServiceImpl implements ProposalService {
     private final OrderService orderService;
     private final UserService userService;
     private final ProposalMapper mapper;
-    private final ProposalMapper proposalMapper;
 
     public ProposalServiceImpl(ProposalRepository repository, OrderService orderService, UserService userService, ProposalMapper mapper, ProposalMapper proposalMapper) {
         this.repository = repository;
         this.orderService = orderService;
         this.userService = userService;
         this.mapper = mapper;
-        this.proposalMapper = proposalMapper;
     }
 
     @Override
@@ -87,7 +85,7 @@ public class ProposalServiceImpl implements ProposalService {
         }
 
 
-        Proposal proposal = proposalMapper.fromDto(dto);
+        Proposal proposal = mapper.fromDto(dto);
         proposal.setCreateDate(ZonedDateTime.now());
         proposal.setExpert(expert);
         proposal.setOrder(order);

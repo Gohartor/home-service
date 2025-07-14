@@ -25,7 +25,7 @@ public class OrderServiceImpl implements OrderService {
     private final ProposalService proposalService;
     private final OrderMapper orderMapper;
 
-    public OrderServiceImpl(OrderRepository repository, ProposalService proposalService, OrderMapper orderMapper) {
+    public OrderServiceImpl(OrderRepository repository, @Lazy ProposalService proposalService, OrderMapper orderMapper) {
         this.repository = repository;
         this.proposalService = proposalService;
         this.orderMapper = orderMapper;

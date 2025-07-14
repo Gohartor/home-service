@@ -1,5 +1,7 @@
 package org.example.service;
 
+import org.example.dto.expert.ExpertRatingDto;
+import org.example.dto.expert.OrderRatingDto;
 import org.example.entity.Review;
 
 import java.util.List;
@@ -11,4 +13,8 @@ public interface ReviewService {
     List<Review> findAll();
     void deleteById(Long id);
     boolean existsById(Long id);
+
+    ExpertRatingDto getExpertAverageRating(Long expertId);
+
+    OrderRatingDto getOrderRating(Long expertId, Long orderId);
 }
