@@ -6,10 +6,7 @@ import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import org.example.dto.admin.UserSearchFilterDto;
-import org.example.dto.expert.ExpertLoginDto;
-import org.example.dto.expert.ExpertRegisterDto;
-import org.example.dto.expert.ExpertResponseDto;
-import org.example.dto.expert.ExpertUpdateProfileDto;
+import org.example.dto.expert.*;
 import org.example.entity.User;
 import org.example.entity.Service;
 import org.example.entity.enumerator.ExpertStatus;
@@ -143,7 +140,8 @@ public class UserServiceImpl implements UserService {
         repository.save(user);
     }
 
-    private String saveProfileImage(MultipartFile file, String email) {
+    @Override
+    public String saveProfileImage(MultipartFile file, String email) {
         try {
             String filename = "expert_" + email + "_" + System.currentTimeMillis() + "_" + file.getOriginalFilename();
             Path path = Paths.get(profileDir + filename);
@@ -245,4 +243,25 @@ public class UserServiceImpl implements UserService {
         return repository.findAll(spec, pageable);
     }
 
+
+
+    @Override
+    public ExpertProfileDto registerExpert(ExpertRegisterDto dto, MultipartFile profilePhoto) {
+
+        String photoUrl;
+        try {
+            photoUrl = FileStorageService.saveProfilePhoto(profilePhoto);
+        }
+        catch (IOException e) {
+            throw new RuntimeException("Failed to save profile photo", e);
+        }
+
+
+        User expert = new User();
+        expert.setExpertStatus(ExpertStatus.PENDING);
+        expert.setProfilePhoto(photoUrl);
+
+        repository.save(expert);
+        return userMapper.mapToProfileDto(expert);
+    }
 }
