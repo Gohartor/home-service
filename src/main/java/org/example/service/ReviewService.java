@@ -1,5 +1,7 @@
 package org.example.service;
 
+import org.example.dto.customer.ReviewCreateDto;
+import org.example.dto.customer.ReviewDto;
 import org.example.dto.expert.ExpertRatingDto;
 import org.example.dto.expert.OrderRatingDto;
 import org.example.entity.Review;
@@ -17,4 +19,8 @@ public interface ReviewService {
     ExpertRatingDto getExpertAverageRating(Long expertId);
 
     OrderRatingDto getOrderRating(Long expertId, Long orderId);
+
+    ReviewDto addReview(Long customerId, ReviewCreateDto dto);
+
+    Optional<ReviewDto> getReviewByOrderId(Long orderId);
 }

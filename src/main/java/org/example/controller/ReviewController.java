@@ -1,6 +1,8 @@
 package org.example.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.example.dto.customer.ReviewCreateDto;
+import org.example.dto.customer.ReviewDto;
 import org.example.dto.expert.ExpertRatingDto;
 import org.example.dto.expert.OrderRatingDto;
 import org.example.entity.User;
@@ -8,10 +10,7 @@ import org.example.service.ReviewService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/expert/ratings")
@@ -38,4 +37,25 @@ public class ReviewController {
         OrderRatingDto dto = reviewService.getOrderRating(principal.getId(), orderId);
         return ResponseEntity.ok(dto);
     }
+
+
+    @PostMapping
+    @PreAuthorize("hasRole('CUSTOMER')")
+    public ResponseEntity<ReviewDto> addReview(@AuthenticationPrincipal User customer,
+                                               @RequestBody ReviewCreateDto dto) {
+        var saved = reviewService.addReview(customer.getId(), dto);
+        return ResponseEntity.ok(saved);
+    }
+
+
+    @GetMapping("/{orderId}")
+    @PreAuthorize("hasAnyRole('CUSTOMER','EXPERT')")
+    public ResponseEntity<ReviewDto> getReviewByOrderId(@PathVariable Long orderId) {
+        return reviewService.getReviewByOrderId(orderId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+
+
 }

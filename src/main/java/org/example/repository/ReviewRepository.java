@@ -22,4 +22,6 @@ public interface ReviewRepository
     int countByExpertId(@Param("expertId") Long expertId);
 
     Optional<Review> findByOrderIdAndExpertId(Long orderId, Long expertId);
+
+    Optional<Review> findByOrderId(Long orderId);
 }

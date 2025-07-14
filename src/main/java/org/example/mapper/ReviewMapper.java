@@ -1,7 +1,9 @@
 package org.example.mapper;
 
+import org.example.dto.customer.ReviewDto;
 import org.example.dto.expert.OrderRatingDto;
 import org.example.entity.Review;
+import org.example.entity.User;
 import org.mapstruct.*;
 import java.util.List;
 
@@ -14,4 +16,10 @@ public interface ReviewMapper {
 
 
     List<OrderRatingDto> toOrderRatingDtoList(List<Review> reviews);
+
+
+
+    @Mapping(source = "order.id", target = "orderId")
+    ReviewDto toDto(Review review);
+
 }
