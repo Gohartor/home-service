@@ -1,5 +1,7 @@
 package org.example.service;
 
+import org.example.dto.expert.ExpertOrderDetailDto;
+import org.example.dto.expert.ExpertOrderSummaryDto;
 import org.example.entity.Order;
 import org.example.entity.Proposal;
 
@@ -16,4 +18,7 @@ public interface OrderService {
     long getProposalCountForOrder(Long orderId);
 
     public boolean hasActiveOrderForExpert(Long expertId);
+
+    List<ExpertOrderSummaryDto> getExpertOrderHistory(Long expertId);
+    ExpertOrderDetailDto getExpertOrderDetail(Long orderId, Long expertId);
 }
