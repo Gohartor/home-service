@@ -28,6 +28,9 @@ public class Order extends BaseEntity {
     private User customer;
 
     @ManyToOne
+    private User expert;
+
+    @ManyToOne
     private Service service;
 
     @Enumerated(EnumType.STRING)

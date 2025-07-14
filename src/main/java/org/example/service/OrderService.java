@@ -14,4 +14,6 @@ public interface OrderService {
     boolean existsById(Long id);
     void updateOrder(Order order);
     long getProposalCountForOrder(Long orderId);
+
+    public boolean hasActiveOrderForExpert(Long expertId);
 }

@@ -2,6 +2,7 @@ package org.example.service.impl;
 
 import org.example.entity.Order;
 import org.example.entity.Proposal;
+import org.example.entity.enumerator.ServiceStatus;
 import org.example.repository.OrderRepository;
 import org.example.repository.ProposalRepository;
 import org.example.service.OrderService;
@@ -55,5 +56,9 @@ public class OrderServiceImpl implements OrderService {
 
     public long getProposalCountForOrder(Long orderId) {
         return proposalService.countAllByOrder_Id(orderId);
+    }
+
+    public boolean hasActiveOrderForExpert(Long expertId) {
+        return repository.existsByExpert_IdAndStatus(expertId, ServiceStatus.AWAITING_SPECIALIST);
     }
 }

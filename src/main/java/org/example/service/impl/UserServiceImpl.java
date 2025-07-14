@@ -1,7 +1,15 @@
 package org.example.service.impl;
 
+
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Predicate;
+import org.example.dto.admin.UserSearchFilterDto;
+import org.example.dto.expert.ExpertLoginDto;
 import org.example.dto.expert.ExpertRegisterDto;
 import org.example.dto.expert.ExpertResponseDto;
+import org.example.dto.expert.ExpertUpdateProfileDto;
 import org.example.entity.User;
 import org.example.entity.Service;
 import org.example.entity.enumerator.ExpertStatus;
@@ -9,10 +17,15 @@ import org.example.entity.enumerator.RoleType;
 import org.example.exception.DuplicateResourceException;
 import org.example.mapper.UserMapper;
 import org.example.repository.UserRepository;
+import org.example.service.OrderService;
 import org.example.service.ServiceService;
 import org.example.service.UserService;
 
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,14 +35,18 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
+
 
 @org.springframework.stereotype.Service
 public class UserServiceImpl implements UserService {
 
     private final UserRepository repository;
     private final ServiceService serviceService;
+    private final OrderService orderService;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
 
@@ -40,12 +57,14 @@ public class UserServiceImpl implements UserService {
     public UserServiceImpl(
             UserRepository repository,
             ServiceService serviceService,
+            OrderService orderService,
             UserMapper userMapper,
             PasswordEncoder passwordEncoder) {
         this.repository = repository;
         this.serviceService = serviceService;
         this.userMapper = userMapper;
         this.passwordEncoder = passwordEncoder;
+        this.orderService = orderService;
     }
 
 
@@ -105,7 +124,6 @@ public class UserServiceImpl implements UserService {
     }
 
 
-
     @Override
     @Transactional
     public void registerExpert(ExpertRegisterDto dto) {
@@ -136,4 +154,95 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("Failed to save profile photo", e);
         }
     }
+
+
+    @Override
+    public User login(ExpertLoginDto dto) {
+
+        User expert = repository.findByEmail(dto.email())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid email or password."));
+
+
+        if (!expert.getExpertStatus().equals(ExpertStatus.APPROVED))
+            throw new IllegalStateException("Your account is not approved yet.");
+
+
+        if (!passwordEncoder.matches(dto.password(), expert.getPassword()))
+            throw new IllegalArgumentException("Invalid email or password.");
+
+        return expert;
+    }
+
+
+    public void updateExpertProfile(Long expertId, ExpertUpdateProfileDto dto) {
+        User user = repository.findById(expertId)
+                .orElseThrow(() -> new IllegalArgumentException("Expert not found."));
+
+        if (!user.getRole().equals(RoleType.EXPERT))
+            throw new IllegalArgumentException("User is not expert.");
+
+        if (orderService.hasActiveOrderForExpert(expertId))
+            throw new IllegalStateException("You cannot update your profile while you have active jobs.");
+
+        userMapper.updateExpertProfileFromDto(dto, user);
+
+        if (dto.profilePhoto() != null && !dto.profilePhoto().isEmpty()) {
+            Path path = Paths.get("uploads/profile-photos/" + UUID.randomUUID() + "-" + dto.profilePhoto().getOriginalFilename());
+            try {
+                Files.createDirectories(path.getParent());
+                dto.profilePhoto().transferTo(path);
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to save profile photo", e);
+            }
+
+            user.setProfilePhoto(path.toString());
+        }
+
+        user.setExpertStatus(ExpertStatus.PENDING);
+        repository.save(user);
+    }
+
+
+
+    public Page<User> searchUsers(UserSearchFilterDto filter) {
+
+        Specification<User> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            if (filter.role() != null) {
+                predicates.add(cb.equal(root.get("role"), filter.role()));
+            }
+
+
+            if (filter.name() != null && !filter.name().isBlank()) {
+                Predicate firstName = cb.like(cb.lower(root.get("firstName")), "%" + filter.name().toLowerCase() + "%");
+                Predicate lastName = cb.like(cb.lower(root.get("lastName")), "%" + filter.name().toLowerCase() + "%");
+                predicates.add(cb.or(firstName, lastName));
+            }
+
+            if (filter.ratingFrom() != null) {
+                predicates.add(cb.greaterThanOrEqualTo(root.get("rating"), filter.ratingFrom()));
+            }
+            if (filter.ratingTo() != null) {
+                predicates.add(cb.lessThanOrEqualTo(root.get("rating"), filter.ratingTo()));
+            }
+
+
+            if (filter.service() != null && !filter.service().isBlank()) {
+                predicates.add(cb.like(cb.lower(root.get("serviceName")), "%" + filter.service().toLowerCase() + "%"));
+            }
+
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+
+
+        int page = filter.page() != null ? filter.page() : 0;
+        int size = filter.size() != null ? filter.size() : 10;
+        Pageable pageable = PageRequest.of(page, size);
+
+
+        return repository.findAll(spec, pageable);
+    }
+
 }

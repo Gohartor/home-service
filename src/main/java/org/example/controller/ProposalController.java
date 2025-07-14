@@ -1,6 +1,9 @@
 package org.example.controller;
 
 import jakarta.validation.Valid;
+
+import org.example.auth.UserPrincipal;
+import org.example.dto.proposal.ProposalCreateDto;
 import org.example.dto.proposal.ProposalRequestDto;
 import org.example.dto.proposal.ProposalResponseDto;
 import org.example.entity.Order;
@@ -11,7 +14,9 @@ import org.example.service.OrderService;
 import org.example.service.ProposalService;
 import org.example.service.UserService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
 
 @RestController
 @RequestMapping("/proposals")
@@ -45,4 +50,15 @@ public class ProposalController {
 
         return ResponseEntity.ok(proposalMapper.toDto(saved));
     }
-}
+
+
+
+
+        @PostMapping
+        public ResponseEntity<String> createProposal(
+                @AuthenticationPrincipal UserPrincipal expert,
+                @RequestBody @Valid ProposalCreateDto dto) {
+            proposalService.createProposal(expert.getId(), dto);
+            return ResponseEntity.ok("ok");
+        }
+    }

@@ -1,10 +1,9 @@
 package org.example.service;
 
+import org.example.dto.proposal.ProposalCreateDto;
 import org.example.dto.proposal.ProposalRequestDto;
-import org.example.dto.proposal.ProposalResponseDto;
 import org.example.entity.Proposal;
 
-import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,6 +14,5 @@ public interface ProposalService {
     void deleteById(Long id);
     boolean existsById(Long id);
     long countAllByOrder_Id(Long orderId);
-    ProposalResponseDto createProposal(ProposalRequestDto dto);
-
+    void createProposal(Long expertId, ProposalCreateDto dto);
 }

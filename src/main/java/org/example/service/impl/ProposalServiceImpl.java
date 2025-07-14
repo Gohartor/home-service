@@ -1,19 +1,17 @@
 package org.example.service.impl;
 
+import org.example.dto.proposal.ProposalCreateDto;
 import org.example.dto.proposal.ProposalRequestDto;
-import org.example.dto.proposal.ProposalResponseDto;
 import org.example.entity.Order;
 import org.example.entity.Proposal;
 import org.example.entity.User;
 import org.example.entity.enumerator.RoleType;
 import org.example.entity.enumerator.ServiceStatus;
 import org.example.mapper.ProposalMapper;
-import org.example.repository.OrderRepository;
 import org.example.repository.ProposalRepository;
 import org.example.service.OrderService;
 import org.example.service.ProposalService;
 import org.example.service.UserService;
-import org.mapstruct.Mapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,12 +26,14 @@ public class ProposalServiceImpl implements ProposalService {
     private final OrderService orderService;
     private final UserService userService;
     private final ProposalMapper mapper;
+    private final ProposalMapper proposalMapper;
 
-    public ProposalServiceImpl(ProposalRepository repository, OrderService orderService, UserService userService, ProposalMapper mapper) {
+    public ProposalServiceImpl(ProposalRepository repository, OrderService orderService, UserService userService, ProposalMapper mapper, ProposalMapper proposalMapper) {
         this.repository = repository;
         this.orderService = orderService;
         this.userService = userService;
         this.mapper = mapper;
+        this.proposalMapper = proposalMapper;
     }
 
     @Override
@@ -66,36 +66,34 @@ public class ProposalServiceImpl implements ProposalService {
     }
 
 
-    @Transactional
+
+
     @Override
-    public ProposalResponseDto createProposal(ProposalRequestDto dto) {
-        Order order = orderService.findById(dto.getOrderId())
-                .orElseThrow(() -> new IllegalArgumentException("Order not found"));
-        if (order.getStatus() != ServiceStatus.PENDING_PROPOSAL &&
-                order.getStatus() != ServiceStatus.AWAITING_SPECIALIST) {
-            throw new IllegalStateException("Order status not allowed for proposal");
+    public void createProposal(Long expertId, ProposalCreateDto dto) {
+
+        if (repository.existsByExpertIdAndOrderId(expertId, dto.orderId())) {
+            throw new IllegalStateException("You have already submitted a proposal for this order.");
         }
 
-        User expert = userService.findById(dto.getExpertId())
+
+        Order order = orderService.findById(dto.orderId())
+                .orElseThrow(() -> new IllegalArgumentException("Order not found"));
+
+        User expert = userService.findById(expertId)
                 .orElseThrow(() -> new IllegalArgumentException("Expert not found"));
 
-        if (expert.getRole() != RoleType.EXPERT) {
-            throw new IllegalArgumentException("User is not an expert");
+        if (!expert.getServices().contains(order.getService())) {
+            throw new IllegalStateException("You are not allowed to submit a proposal for this order.");
         }
 
-        Proposal proposal = mapper.toProposal(dto);
-        proposal.setOrder(order);
+
+        Proposal proposal = proposalMapper.fromDto(dto);
+        proposal.setCreateDate(ZonedDateTime.now());
         proposal.setExpert(expert);
-
-        Proposal saved = repository.save(proposal);
-
-        if (repository.countAllByOrder_Id(dto.getOrderId()) == 1) {
-            order.setStatus(ServiceStatus.AWAITING_SPECIALIST);
-            orderService.save(order);
-        }
-
-        return mapper.toDto(saved);
+        proposal.setOrder(order);
+        repository.save(proposal);
     }
+
 
 
 }

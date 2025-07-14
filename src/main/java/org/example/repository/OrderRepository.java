@@ -13,4 +13,6 @@ public interface OrderRepository
 
 
     List<Order> findByServiceId(Long serviceId);
+
+    boolean existsByExpert_IdAndStatus(Long customerId, ServiceStatus status);
 }

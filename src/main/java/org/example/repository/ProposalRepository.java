@@ -13,4 +13,6 @@ public interface ProposalRepository
 
     long countAllByOrder_Id(Long orderId);
 
+    boolean existsByExpertIdAndOrderId(Long expertId, Long orderId);
+
 }
