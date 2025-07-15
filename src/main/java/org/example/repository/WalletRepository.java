@@ -12,4 +12,7 @@ public interface WalletRepository
 
     Optional<Wallet> findByUserId(Long userId);
 
+
+
+
 }

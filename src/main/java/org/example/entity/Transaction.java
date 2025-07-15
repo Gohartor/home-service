@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.example.entity.base.BaseEntity;
+import org.example.entity.enumerator.TransactionType;
 
 @Entity
 @Table(name = "transactions")
@@ -20,7 +21,7 @@ public class Transaction extends BaseEntity {
 
 
     private Double amount;
-    private String type;
+    private TransactionType type;
     private Long relatedOrderId;
 
     @ManyToOne

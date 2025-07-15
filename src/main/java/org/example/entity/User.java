@@ -31,6 +31,8 @@ public class User extends BaseEntity {
 
     private String profilePhoto;
 
+    private Long negativeScore = 0L;
+
     @Enumerated(EnumType.STRING)
     private RoleType role;
 
@@ -44,4 +46,9 @@ public class User extends BaseEntity {
             inverseJoinColumns = @JoinColumn(name = "service_id")
     )
     private Set<Service> services = new HashSet<>();
+
+
+    public void addNegativeScore(long hours) {
+        this.negativeScore += hours;
+    }
 }

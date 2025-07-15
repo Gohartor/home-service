@@ -10,7 +10,7 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface TransactionMapper {
 
-
+    @Mapping(target = "walletId", source = "wallet.id")
     TransactionDto toDto(Transaction transaction);
 
     List<TransactionDto> toDtoList(List<Transaction> transactions);

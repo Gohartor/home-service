@@ -2,6 +2,8 @@ package org.example.service;
 
 import org.example.dto.transaction.TransactionDto;
 import org.example.dto.wallet.WalletBalanceDto;
+import org.example.dto.wallet.WalletChargeDto;
+import org.example.dto.wallet.WalletDto;
 import org.example.entity.Wallet;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,4 +21,12 @@ public interface WalletService {
     WalletBalanceDto getWalletBalance(Long userId);
     List<TransactionDto> getTransactions(Long userId);
     Page<TransactionDto> getTransactionsPage(Long userId, Pageable pageable);
+
+    Optional<Wallet> findByUserId(Long userId);
+
+    WalletDto getWalletByUser(Long userId);
+
+    List<TransactionDto> getWalletTransactions(Long walletId);
+
+    WalletDto chargeWallet(Long userId, WalletChargeDto chargeRequest);
 }

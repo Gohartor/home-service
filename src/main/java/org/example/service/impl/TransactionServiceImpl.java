@@ -1,6 +1,8 @@
 package org.example.service.impl;
 
+import org.example.dto.transaction.TransactionDto;
 import org.example.entity.Transaction;
+import org.example.mapper.TransactionMapper;
 import org.example.repository.TransactionRepository;
 import org.example.service.TransactionService;
 import org.springframework.data.domain.Page;
@@ -14,9 +16,11 @@ import java.util.Optional;
 public class TransactionServiceImpl implements TransactionService {
 
     private final TransactionRepository repository;
+    private final TransactionMapper transactionMapper;
 
-    public TransactionServiceImpl(TransactionRepository repository) {
+    public TransactionServiceImpl(TransactionRepository repository, TransactionMapper transactionMapper) {
         this.repository = repository;
+        this.transactionMapper = transactionMapper;
     }
 
     @Override
@@ -52,6 +56,18 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public List<Transaction> findAllByWalletIdOrderByCreateDateDesc(Long walletId) {
         return repository.findAllByWalletIdOrderByCreateDateDesc(walletId);
+    }
+
+    @Override
+    public TransactionDto create(Transaction transaction) {
+        Transaction saved = repository.save(transaction);
+        return transactionMapper.toDto(saved);
+    }
+
+    @Override
+    public List<TransactionDto> getByWallet(Long walletId) {
+        List<Transaction> list = repository.findAllByWalletIdOrderByCreateDateDesc(walletId);
+        return transactionMapper.toDtoList(list);
     }
 
 }

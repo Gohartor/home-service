@@ -1,14 +1,11 @@
 package org.example.service.impl;
 
 
-import jakarta.persistence.criteria.Expression;
-import jakarta.persistence.criteria.Join;
-import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import org.example.dto.admin.UserSearchFilterDto;
 import org.example.dto.expert.*;
-import org.example.entity.User;
 import org.example.entity.Service;
+import org.example.entity.User;
 import org.example.entity.enumerator.ExpertStatus;
 import org.example.entity.enumerator.RoleType;
 import org.example.exception.DuplicateResourceException;
@@ -17,8 +14,6 @@ import org.example.repository.UserRepository;
 import org.example.service.OrderService;
 import org.example.service.ServiceService;
 import org.example.service.UserService;
-
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -46,9 +41,6 @@ public class UserServiceImpl implements UserService {
     private final OrderService orderService;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
-
-
-    private final String profileDir = "uploads/";
 
 
     public UserServiceImpl(
@@ -144,6 +136,7 @@ public class UserServiceImpl implements UserService {
     public String saveProfileImage(MultipartFile file, String email) {
         try {
             String filename = "expert_" + email + "_" + System.currentTimeMillis() + "_" + file.getOriginalFilename();
+            String profileDir = "uploads/";
             Path path = Paths.get(profileDir + filename);
             Files.createDirectories(path.getParent());
             file.transferTo(path);

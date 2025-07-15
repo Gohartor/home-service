@@ -1,5 +1,6 @@
 package org.example.service;
 
+import org.example.dto.transaction.TransactionDto;
 import org.example.entity.Transaction;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,5 +18,9 @@ public interface TransactionService {
     Page<Transaction> findAllByWalletIdOrderByCreateDateDesc(Long walletId, Pageable pageable);
 
     List<Transaction> findAllByWalletIdOrderByCreateDateDesc(Long walletId);
+
+    TransactionDto create(Transaction transaction);
+
+    List<TransactionDto> getByWallet(Long walletId);
 
 }

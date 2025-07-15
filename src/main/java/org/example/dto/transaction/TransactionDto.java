@@ -7,5 +7,7 @@ public record TransactionDto(
         Double amount,
         String type,
         Long relatedOrderId,
+        Long walletId,
         ZonedDateTime createdAt
 ) {}
+

@@ -22,7 +22,15 @@ public class Order extends BaseEntity {
 
     private Double offeredPrice;
 
+    private Double totalPrice;
+
     private String address;
+
+    private boolean paid;
+
+    private ZonedDateTime expectedDoneAt;
+
+    private ZonedDateTime doneAt;
 
     @ManyToOne
     private User customer;
