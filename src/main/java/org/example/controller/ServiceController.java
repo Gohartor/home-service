@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/admin/services")
+@RequestMapping("/services")
 @RequiredArgsConstructor
 public class ServiceController {
 
@@ -35,9 +35,9 @@ public class ServiceController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteService(@PathVariable Long id) {
+    public ResponseEntity<String> deleteService(@PathVariable Long id) {
         serviceService.deleteService(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok("success delete service");
     }
 
     @GetMapping

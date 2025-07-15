@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.dto.payment.PaymentRequestDto;
 import org.example.dto.payment.PaymentResultDto;
 import org.example.service.PaymentService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/payment")
+@RequestMapping("/payment")
 @RequiredArgsConstructor
 public class PaymentController {
 
@@ -20,10 +21,9 @@ public class PaymentController {
 
 
     @PostMapping("/pay-for-order")
-    public PaymentResultDto payForOrder(@RequestBody @Valid PaymentRequestDto paymentRequest, Authentication authentication) {
+    public ResponseEntity<PaymentResultDto>  payForOrder(@RequestBody @Valid PaymentRequestDto paymentRequest, Authentication authentication) {
         Long userId = getUserIdFromAuth(authentication);
-
-        return paymentService.payForOrder(userId, paymentRequest);
+        return ResponseEntity.ok(paymentService.payForOrder(userId, paymentRequest));
     }
 
 

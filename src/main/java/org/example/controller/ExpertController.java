@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@RequestMapping("/api/experts")
+@RequestMapping("/experts")
 public class ExpertController {
 
     private final UserService userService;
@@ -21,7 +21,7 @@ public class ExpertController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerExpert(@ModelAttribute @Valid ExpertRegisterDto dto) {
+    public ResponseEntity<String> registerExpert(@ModelAttribute @Valid ExpertRegisterDto dto) {
         userService.registerExpert(dto);
         return ResponseEntity.ok("Expert registered successfully. Waiting for approval.");
     }
@@ -35,7 +35,7 @@ public class ExpertController {
     }
 
     @PutMapping("/profile")
-    public ResponseEntity<?> updateProfile(
+    public ResponseEntity<String> updateProfile(
             @RequestParam Long expertId,
             @ModelAttribute @Valid ExpertUpdateProfileDto dto) {
         userService.updateExpertProfile(expertId, dto);

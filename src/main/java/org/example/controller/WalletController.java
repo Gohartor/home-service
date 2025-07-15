@@ -13,11 +13,12 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.function.RenderingResponse;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/expert/wallet")
+@RequestMapping("/wallet")
 @RequiredArgsConstructor
 
 public class WalletController {
@@ -41,9 +42,9 @@ public class WalletController {
 
 
     @GetMapping("/my-wallet")
-    public WalletDto getMyWallet(Authentication authentication) {
+    public ResponseEntity<WalletDto> getMyWallet(Authentication authentication) {
         Long userId = getUserIdFromAuth(authentication);
-        return walletService.getWalletByUser(userId);
+        return ResponseEntity.ok(walletService.getWalletByUser(userId));
     }
 
 
@@ -55,9 +56,9 @@ public class WalletController {
     }
 
     @PostMapping("/charge")
-    public WalletDto chargeWallet(@RequestBody @Valid WalletChargeDto chargeDto, Authentication authentication) {
+    public ResponseEntity<WalletDto> chargeWallet(@RequestBody @Valid WalletChargeDto chargeDto, Authentication authentication) {
         Long userId = getUserIdFromAuth(authentication);
-        return walletService.chargeWallet(userId, chargeDto);
+        return ResponseEntity.ok(walletService.chargeWallet(userId, chargeDto));
     }
 
     private Long getUserIdFromAuth(Authentication authentication) {

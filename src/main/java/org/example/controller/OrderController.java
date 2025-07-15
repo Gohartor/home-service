@@ -16,11 +16,18 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/expert/orders")
+@RequestMapping("/orders")
 @RequiredArgsConstructor
 public class OrderController {
 
     private final OrderService orderService;
+
+
+    @GetMapping("/test")
+    public String test() {
+        return "hello from backend!";
+    }
+
 
 
     @GetMapping("/history")

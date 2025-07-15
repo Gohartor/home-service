@@ -22,7 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/users")
 @RequiredArgsConstructor
 public class UserController {
 
@@ -35,31 +35,31 @@ public class UserController {
     }
 
     @PutMapping("/approve/{expertId}")
-    public ResponseEntity<Void> approveExpert(@PathVariable Long expertId) {
+    public ResponseEntity<String> approveExpert(@PathVariable Long expertId) {
         userService.approveExpert(expertId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok("approved");
     }
 
     @PutMapping("/reject/{expertId}")
-    public ResponseEntity<Void> rejectExpert(@PathVariable Long expertId) {
+    public ResponseEntity<String> rejectExpert(@PathVariable Long expertId) {
         userService.rejectExpert(expertId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok("rejected");
     }
 
     @PostMapping("/assign-service")
-    public ResponseEntity<Void> addExpertToService(
+    public ResponseEntity<String> addExpertToService(
             @Valid @RequestBody ExpertServiceAssignRequestDto dto
     ) {
         userService.addExpertToService(dto.expertId(), dto.serviceId());
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok("added");
     }
 
     @PostMapping("/remove-service")
-    public ResponseEntity<Void> removeExpertFromService(
+    public ResponseEntity<String> removeExpertFromService(
             @Valid @RequestBody ExpertServiceAssignRequestDto dto
     ) {
         userService.removeExpertFromService(dto.expertId(), dto.serviceId());
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok("removed");
     }
 
 
