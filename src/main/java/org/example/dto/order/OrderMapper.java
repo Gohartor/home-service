@@ -12,14 +12,12 @@ public interface OrderMapper {
 
     @Mapping(target = "orderId", source = "id")
     @Mapping(target = "serviceName", source = "service.name")
-    @Mapping(target = "status", source = "status")
     @Mapping(target = "customerFullName", expression = "java(order.getCustomer() != null ? order.getCustomer().getFirstName() + \" \" + order.getCustomer().getLastName() : null)")
     ExpertOrderSummaryDto toSummaryDto(Order order);
 
 
     @Mapping(target = "orderId", source = "id")
     @Mapping(target = "serviceName", source = "service.name")
-    @Mapping(target = "status", source = "status")
     @Mapping(target = "customerFullName", expression = "java(order.getCustomer() != null ? order.getCustomer().getFirstName() + \" \" + order.getCustomer().getLastName() : null)")
     @Mapping(target = "customerEmail", source = "customer.email")
     @Mapping(target = "customerProfilePhoto", source = "customer.profilePhoto")

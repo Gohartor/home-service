@@ -13,7 +13,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/ratings")
+@RequestMapping("/review")
 @RequiredArgsConstructor
 public class ReviewController {
 
@@ -39,7 +39,7 @@ public class ReviewController {
     }
 
 
-    @PostMapping
+    @PostMapping("/add")
     @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<ReviewDto> addReview(@AuthenticationPrincipal User customer,
                                                @RequestBody ReviewCreateDto dto) {

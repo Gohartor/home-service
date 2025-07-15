@@ -19,7 +19,7 @@ public interface OrderService {
     void updateOrder(Order order);
     long getProposalCountForOrder(Long orderId);
 
-    public boolean hasActiveOrderForExpert(Long expertId);
+    boolean hasActiveOrderForExpert(Long expertId);
 
     List<ExpertOrderSummaryDto> getExpertOrderHistory(Long expertId);
     ExpertOrderDetailDto getExpertOrderDetail(Long orderId, Long expertId);

@@ -199,39 +199,31 @@ public class UserServiceImpl implements UserService {
 
         Specification<User> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
-
             if (filter.role() != null) {
                 predicates.add(cb.equal(root.get("role"), filter.role()));
             }
-
-
             if (filter.name() != null && !filter.name().isBlank()) {
                 Predicate firstName = cb.like(cb.lower(root.get("firstName")), "%" + filter.name().toLowerCase() + "%");
                 Predicate lastName = cb.like(cb.lower(root.get("lastName")), "%" + filter.name().toLowerCase() + "%");
                 predicates.add(cb.or(firstName, lastName));
             }
-
             if (filter.ratingFrom() != null) {
                 predicates.add(cb.greaterThanOrEqualTo(root.get("rating"), filter.ratingFrom()));
             }
             if (filter.ratingTo() != null) {
                 predicates.add(cb.lessThanOrEqualTo(root.get("rating"), filter.ratingTo()));
             }
-
-
             if (filter.service() != null && !filter.service().isBlank()) {
                 predicates.add(cb.like(cb.lower(root.get("serviceName")), "%" + filter.service().toLowerCase() + "%"));
             }
-
-
             return cb.and(predicates.toArray(new Predicate[0]));
         };
 
 
         int page = filter.page() != null ? filter.page() : 0;
         int size = filter.size() != null ? filter.size() : 10;
-        Pageable pageable = PageRequest.of(page, size);
 
+        Pageable pageable = PageRequest.of(page, size);
 
         return repository.findAll(spec, pageable);
     }

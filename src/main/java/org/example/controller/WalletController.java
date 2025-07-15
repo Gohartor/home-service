@@ -31,13 +31,19 @@ public class WalletController {
         return ResponseEntity.ok(walletService.getWalletBalance(principal.getId()));
     }
 
-
-
-    @GetMapping("/expert/transactions")
-    @PreAuthorize("hasRole('EXPERT')")
-    public ResponseEntity<List<TransactionDto>> getExpertTransactions(@AuthenticationPrincipal User principal) {
-        return ResponseEntity.ok(walletService.getTransactions(principal.getId()));
+    @GetMapping("/transactions")
+    public ResponseEntity<List<TransactionDto>> getMyWalletTransactions(Authentication authentication) {
+        Long userId = getUserIdFromAuth(authentication);
+        WalletDto wallet = walletService.getWalletByUser(userId);
+        return ResponseEntity.ok(walletService.getWalletTransactions(wallet.id()));
     }
+
+
+//    @GetMapping("/expert/transactions")
+//    @PreAuthorize("hasRole('EXPERT')")
+//    public ResponseEntity<List<TransactionDto>> getExpertTransactions(@AuthenticationPrincipal User principal) {
+//        return ResponseEntity.ok(walletService.getTransactions(principal.getId()));
+//    }
 
 
 
@@ -47,13 +53,6 @@ public class WalletController {
         return ResponseEntity.ok(walletService.getWalletByUser(userId));
     }
 
-
-    @GetMapping("/transactions")
-    public List<TransactionDto> getMyWalletTransactions(Authentication authentication) {
-        Long userId = getUserIdFromAuth(authentication);
-        WalletDto wallet = walletService.getWalletByUser(userId);
-        return walletService.getWalletTransactions(wallet.id());
-    }
 
     @PostMapping("/charge")
     public ResponseEntity<WalletDto> chargeWallet(@RequestBody @Valid WalletChargeDto chargeDto, Authentication authentication) {

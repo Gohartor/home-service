@@ -1,7 +1,6 @@
 package org.example.controller;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.admin.UserAdminListDto;
 import org.example.dto.admin.UserSearchFilterDto;
@@ -13,7 +12,6 @@ import org.example.entity.User;
 import org.example.mapper.UserMapper;
 import org.example.service.UserService;
 import org.springframework.data.domain.Page;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -64,17 +62,17 @@ public class UserController {
 
 
     @PostMapping("/search")
+    @PreAuthorize("hasRole('ADMIN')")
     public Page<UserAdminListDto> searchUsers(@RequestBody UserSearchFilterDto filter) {
         Page<User> page = userService.searchUsers(filter);
         return page.map(userMapper::toUserAdminListDto);
     }
 
 
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/register")
     public ResponseEntity<ExpertProfileDto> registerExpert(
             @RequestPart("data") @Valid ExpertRegisterDto data,
-            @RequestPart("profilePhoto") @Valid @NotNull MultipartFile profilePhoto
+            @RequestPart("profilePhoto") @Valid MultipartFile profilePhoto
     ) {
         ExpertProfileDto profileDto = userService.registerExpert(data, profilePhoto);
         return ResponseEntity.ok(profileDto);

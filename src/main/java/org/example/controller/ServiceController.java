@@ -40,7 +40,7 @@ public class ServiceController {
         return ResponseEntity.ok("success delete service");
     }
 
-    @GetMapping
+    @GetMapping("/list-services")
     public ResponseEntity<List<ServiceResponseDto>> listServices(
             @RequestParam(required = false) Long parentId
     ) {
