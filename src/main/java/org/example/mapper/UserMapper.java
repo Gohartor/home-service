@@ -3,6 +3,7 @@ package org.example.mapper;
 import org.example.dto.admin.UserAdminListDto;
 import org.example.dto.admin.UserSearchFilterDto;
 import org.example.dto.customer.CustomerRegisterDto;
+import org.example.dto.customer.CustomerUpdateProfileDto;
 import org.example.dto.expert.ExpertProfileDto;
 import org.example.dto.expert.ExpertRegisterDto;
 import org.example.dto.expert.ExpertResponseDto;
@@ -41,5 +42,7 @@ public interface UserMapper {
 
     ExpertProfileDto mapToProfileDto(User expert);
 
-
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "profilePhoto", ignore = true)
+    void updateCustomerProfileFromDto(CustomerUpdateProfileDto dto,@MappingTarget User user);
 }

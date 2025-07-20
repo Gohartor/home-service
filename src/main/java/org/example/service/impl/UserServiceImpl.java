@@ -6,8 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.example.dto.admin.UserSearchFilterDto;
 import org.example.dto.customer.CustomerLoginDto;
 import org.example.dto.customer.CustomerRegisterDto;
+import org.example.dto.customer.CustomerUpdateProfileDto;
 import org.example.dto.expert.*;
-import org.example.dto.service.ServiceResponseDto;
 import org.example.entity.Service;
 import org.example.entity.User;
 import org.example.entity.enumerator.ExpertStatus;
@@ -173,7 +173,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User loginCustomer(CustomerLoginDto dto) {
+    public void loginCustomer(CustomerLoginDto dto) {
         User customer = repository.findByEmail(dto.email())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid email or password."));
         if (!customer.getExpertStatus().equals(ExpertStatus.APPROVED))
@@ -181,7 +181,6 @@ public class UserServiceImpl implements UserService {
         if (!passwordEncoder.matches(dto.password(), customer.getPassword()))
             throw new IllegalArgumentException("Invalid email or password.");
 
-        return customer;
     }
 
 
@@ -213,6 +212,18 @@ public class UserServiceImpl implements UserService {
         repository.save(user);
     }
 
+    @Override
+    public void updateCustomerProfile(Long customerId, CustomerUpdateProfileDto dto) {
+        User user = repository.findById(customerId)
+                .orElseThrow(() -> new IllegalArgumentException("Customer not found."));
+
+        if (!user.getRole().equals(RoleType.CUSTOMER))
+            throw new IllegalArgumentException("User is not expert.");
+
+        userMapper.updateCustomerProfileFromDto(dto, user);
+
+        repository.save(user);
+    }
 
 
     public Page<User> searchUsers(UserSearchFilterDto filter) {

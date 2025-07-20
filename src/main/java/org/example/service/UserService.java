@@ -3,6 +3,7 @@ package org.example.service;
 import org.example.dto.admin.UserSearchFilterDto;
 import org.example.dto.customer.CustomerLoginDto;
 import org.example.dto.customer.CustomerRegisterDto;
+import org.example.dto.customer.CustomerUpdateProfileDto;
 import org.example.dto.expert.*;
 import org.example.entity.User;
 import org.springframework.data.domain.Page;
@@ -33,9 +34,11 @@ public interface UserService {
 
     User loginExpert(ExpertLoginDto dto);
 
-    User loginCustomer(CustomerLoginDto dto);
+    void loginCustomer(CustomerLoginDto dto);
 
     void updateExpertProfile(Long expertId, ExpertUpdateProfileDto dto);
+
+    void updateCustomerProfile(Long customerId, CustomerUpdateProfileDto dto);
 
     Page<User> searchUsers(UserSearchFilterDto filter);
 

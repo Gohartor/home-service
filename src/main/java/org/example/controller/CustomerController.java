@@ -5,6 +5,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.customer.CustomerLoginDto;
 import org.example.dto.customer.CustomerRegisterDto;
+import org.example.dto.customer.CustomerUpdateProfileDto;
+import org.example.dto.expert.ExpertUpdateProfileDto;
 import org.example.entity.User;
 import org.example.mapper.UserMapper;
 import org.example.service.ServiceService;
@@ -35,5 +37,12 @@ public class CustomerController {
     }
 
 
+    @PutMapping("/update-profile")
+    public ResponseEntity<String> updateProfile(
+            @RequestParam Long customerId,
+            @RequestParam @Valid CustomerUpdateProfileDto dto) {
+        userService.updateCustomerProfile(customerId, dto);
+        return ResponseEntity.ok("Profile updated successfully.");
+    }
 
 }
