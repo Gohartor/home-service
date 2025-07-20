@@ -20,13 +20,23 @@ public class ReviewController {
     private final ReviewService reviewService;
 
 
+//    @GetMapping("/average")
+//    @PreAuthorize("hasRole('EXPERT')")
+//    public ResponseEntity<ExpertRatingDto> getAverage(
+//            @AuthenticationPrincipal User principal) {
+//        ExpertRatingDto dto = reviewService.getExpertAverageRating(principal.getId());
+//        return ResponseEntity.ok(dto);
+//    }
+
+
     @GetMapping("/average")
-    @PreAuthorize("hasRole('EXPERT')")
     public ResponseEntity<ExpertRatingDto> getAverage(
-            @AuthenticationPrincipal User principal) {
-        ExpertRatingDto dto = reviewService.getExpertAverageRating(principal.getId());
+            @RequestParam("expertId") Long expertId)
+    {
+        ExpertRatingDto dto = reviewService.getExpertAverageRating(expertId);
         return ResponseEntity.ok(dto);
     }
+
 
 
     @GetMapping("/order/{orderId}")
@@ -39,13 +49,24 @@ public class ReviewController {
     }
 
 
+//    @PostMapping("/add")
+//    @PreAuthorize("hasRole('CUSTOMER')")
+//    public ResponseEntity<ReviewDto> addReview(@AuthenticationPrincipal User customer,
+//                                               @RequestBody ReviewCreateDto dto) {
+//        var saved = reviewService.addReview(customer.getId(), dto);
+//        return ResponseEntity.ok(saved);
+//    }
+
+
     @PostMapping("/add")
-    @PreAuthorize("hasRole('CUSTOMER')")
-    public ResponseEntity<ReviewDto> addReview(@AuthenticationPrincipal User customer,
-                                               @RequestBody ReviewCreateDto dto) {
-        var saved = reviewService.addReview(customer.getId(), dto);
+    public ResponseEntity<ReviewDto> addReview(
+            @RequestParam("customerId") Long customerId,
+            @RequestBody ReviewCreateDto dto)
+    {
+        var saved = reviewService.addReview(customerId, dto);
         return ResponseEntity.ok(saved);
     }
+
 
 
     @GetMapping("/{orderId}")

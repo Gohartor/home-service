@@ -7,10 +7,7 @@ import org.example.dto.payment.PaymentResultDto;
 import org.example.service.PaymentService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/payment")
@@ -20,11 +17,21 @@ public class PaymentController {
     private final PaymentService paymentService;
 
 
+//    @PostMapping("/pay-for-order")
+//    public ResponseEntity<PaymentResultDto>  payForOrder(@RequestBody @Valid PaymentRequestDto paymentRequest, Authentication authentication) {
+//        Long userId = getUserIdFromAuth(authentication);
+//        return ResponseEntity.ok(paymentService.payForOrder(userId, paymentRequest));
+//    }
+
+
     @PostMapping("/pay-for-order")
-    public ResponseEntity<PaymentResultDto>  payForOrder(@RequestBody @Valid PaymentRequestDto paymentRequest, Authentication authentication) {
-        Long userId = getUserIdFromAuth(authentication);
+    public ResponseEntity<PaymentResultDto> payForOrder(
+            @RequestParam("userId") Long userId,
+            @RequestBody @Valid PaymentRequestDto paymentRequest)
+    {
         return ResponseEntity.ok(paymentService.payForOrder(userId, paymentRequest));
     }
+
 
 
     private Long getUserIdFromAuth(Authentication authentication) {

@@ -8,10 +8,7 @@ import org.example.service.OrderService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -29,12 +26,20 @@ public class OrderController {
     }
 
 
+//    @GetMapping("/history")
+//    @PreAuthorize("hasRole('EXPERT')")
+//    public ResponseEntity<List<ExpertOrderSummaryDto>> getOrderHistory(@AuthenticationPrincipal User principal) {
+//        List<ExpertOrderSummaryDto> dtos =
+//                orderService.getExpertOrderHistory(principal.getId());
+//        return ResponseEntity.ok(dtos);
+//    }
 
     @GetMapping("/history")
-    @PreAuthorize("hasRole('EXPERT')")
-    public ResponseEntity<List<ExpertOrderSummaryDto>> getOrderHistory(@AuthenticationPrincipal User principal) {
+    public ResponseEntity<List<ExpertOrderSummaryDto>> getOrderHistory(
+            @RequestParam("expertId") Long expertId
+    ) {
         List<ExpertOrderSummaryDto> dtos =
-                orderService.getExpertOrderHistory(principal.getId());
+                orderService.getExpertOrderHistory(expertId);
         return ResponseEntity.ok(dtos);
     }
 

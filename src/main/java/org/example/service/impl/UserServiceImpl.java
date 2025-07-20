@@ -214,8 +214,9 @@ public class UserServiceImpl implements UserService {
                 predicates.add(cb.lessThanOrEqualTo(root.get("rating"), filter.ratingTo()));
             }
             if (filter.service() != null && !filter.service().isBlank()) {
-                predicates.add(cb.like(cb.lower(root.get("serviceName")), "%" + filter.service().toLowerCase() + "%"));
+                predicates.add(cb.like(cb.lower(root.get("name")), "%" + filter.service().toLowerCase() + "%"));
             }
+            //join in service not user -> join
             return cb.and(predicates.toArray(new Predicate[0]));
         };
 

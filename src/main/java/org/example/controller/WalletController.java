@@ -25,18 +25,37 @@ public class WalletController {
 
     private final WalletService walletService;
 
+//    @GetMapping("/balance")
+//    @PreAuthorize("hasRole('EXPERT')")
+//    public ResponseEntity<WalletBalanceDto> getBalance(@AuthenticationPrincipal User principal) {
+//        return ResponseEntity.ok(walletService.getWalletBalance(principal.getId()));
+//    }
+
+
+
     @GetMapping("/balance")
-    @PreAuthorize("hasRole('EXPERT')")
-    public ResponseEntity<WalletBalanceDto> getBalance(@AuthenticationPrincipal User principal) {
-        return ResponseEntity.ok(walletService.getWalletBalance(principal.getId()));
+    public ResponseEntity<WalletBalanceDto> getBalance(@RequestParam("userId") Long userId) {
+        return ResponseEntity.ok(walletService.getWalletBalance(userId));
     }
 
+
+
+
+//    @GetMapping("/transactions")
+//    public ResponseEntity<List<TransactionDto>> getMyWalletTransactions(Authentication authentication) {
+//        Long userId = getUserIdFromAuth(authentication);
+//        WalletDto wallet = walletService.getWalletByUser(userId);
+//        return ResponseEntity.ok(walletService.getWalletTransactions(wallet.id()));
+//    }
+
+
+
     @GetMapping("/transactions")
-    public ResponseEntity<List<TransactionDto>> getMyWalletTransactions(Authentication authentication) {
-        Long userId = getUserIdFromAuth(authentication);
+    public ResponseEntity<List<TransactionDto>> getMyWalletTransactions(@RequestParam("userId") Long userId) {
         WalletDto wallet = walletService.getWalletByUser(userId);
         return ResponseEntity.ok(walletService.getWalletTransactions(wallet.id()));
     }
+
 
 
 //    @GetMapping("/expert/transactions")
