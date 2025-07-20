@@ -36,9 +36,16 @@ public class ServiceServiceImpl implements ServiceService {
     }
 
     @Override
-    public Optional<Service> findById(Long id) {
+    public Optional<ServiceResponseDto> findById(Long id) {
+        return repository.findById(id).map(serviceMapper::toDto);
+    }
+
+    @Override
+    public Optional<Service> findEntityById(Long id) {
         return repository.findById(id);
     }
+
+
 
     @Override
     @Transactional

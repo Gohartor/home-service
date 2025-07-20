@@ -15,5 +15,5 @@ public record ServiceRequestDto(
         @NotBlank(message = "Description must not be blank")
         String description,
 
-        Long parentId // Nullable for root services
+        Long parentId
 ) {}

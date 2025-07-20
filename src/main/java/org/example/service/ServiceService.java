@@ -15,7 +15,8 @@ public interface ServiceService {
 //    List<Service> findByParentService(Service parentService);
 
     Service save(Service service);
-    Optional<Service> findById(Long id);
+    Optional<ServiceResponseDto> findById(Long id);
+    Optional<Service> findEntityById(Long id);
     ServiceResponseDto createService(ServiceRequestDto dto);
     ServiceResponseDto updateService(Long serviceId, ServiceRequestDto dto);
     void deleteService(Long serviceId);

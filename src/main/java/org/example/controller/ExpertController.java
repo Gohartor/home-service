@@ -1,10 +1,12 @@
 package org.example.controller;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.example.dto.expert.ExpertLoginDto;
 import org.example.dto.expert.ExpertRegisterDto;
 import org.example.dto.expert.ExpertUpdateProfileDto;
 import org.example.entity.User;
+import org.example.mapper.UserMapper;
 import org.example.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,13 +14,12 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/experts")
+@RequiredArgsConstructor
 public class ExpertController {
 
     private final UserService userService;
+    private final UserMapper userMapper;
 
-    public ExpertController(UserService userService) {
-        this.userService = userService;
-    }
 
     @PostMapping("/register")
     public ResponseEntity<String> registerExpert(@ModelAttribute @Valid ExpertRegisterDto dto) {
@@ -34,7 +35,7 @@ public class ExpertController {
         return ResponseEntity.ok(expert);
     }
 
-    @PutMapping("/profile")
+    @PutMapping("/update-profile")
     public ResponseEntity<String> updateProfile(
             @RequestParam Long expertId,
             @ModelAttribute @Valid ExpertUpdateProfileDto dto) {

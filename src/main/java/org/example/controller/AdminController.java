@@ -1,0 +1,57 @@
+package org.example.controller;
+
+import lombok.RequiredArgsConstructor;
+import org.example.dto.service.ServiceRequestDto;
+import org.example.dto.service.ServiceResponseDto;
+import org.example.entity.Service;
+import org.example.mapper.UserMapper;
+import org.example.mapper.UserMapperImpl;
+import org.example.service.ServiceService;
+import org.example.service.UserService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/admins")
+@RequiredArgsConstructor
+public class AdminController {
+
+    private final UserService userService;
+    private final ServiceService serviceService;
+    private final UserMapper userMapper;
+
+
+    //Create Service
+    @PostMapping("/create-service")
+    public ResponseEntity<ServiceResponseDto> createService(@RequestBody ServiceRequestDto dto) {
+        return ResponseEntity.ok(serviceService.createService(dto));
+    }
+
+    // Read/List Services
+    @GetMapping("/get-services-list")
+    public ResponseEntity<List<ServiceResponseDto>> listServices(@RequestParam Long parentId) {
+        return ResponseEntity.ok(serviceService.listServices(parentId));
+    }
+
+    // Read/Get Single Service
+    @GetMapping("/get-service/{id}")
+    public ResponseEntity<ServiceResponseDto> getService(@PathVariable Long id) {
+        return ResponseEntity.ok(serviceService.findById(id).orElseThrow());
+    }
+
+    // Update Service
+    @PutMapping("/update-service/{id}")
+    public ResponseEntity<ServiceResponseDto> updateService(@PathVariable Long id,
+                                                            @RequestBody ServiceRequestDto dto) {
+        return ResponseEntity.ok(serviceService.updateService(id, dto));
+    }
+
+    //Delete Service
+    @DeleteMapping("/delete-service/{id}")
+    public ResponseEntity<String> deleteService(@PathVariable Long id) {
+        serviceService.deleteService(id);
+        return ResponseEntity.ok("success delete service");
+    }
+}

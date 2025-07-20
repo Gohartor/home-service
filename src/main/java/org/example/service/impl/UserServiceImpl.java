@@ -2,13 +2,16 @@ package org.example.service.impl;
 
 
 import jakarta.persistence.criteria.Predicate;
+import lombok.RequiredArgsConstructor;
 import org.example.dto.admin.UserSearchFilterDto;
 import org.example.dto.expert.*;
+import org.example.dto.service.ServiceResponseDto;
 import org.example.entity.Service;
 import org.example.entity.User;
 import org.example.entity.enumerator.ExpertStatus;
 import org.example.entity.enumerator.RoleType;
 import org.example.exception.DuplicateResourceException;
+import org.example.mapper.ServiceMapper;
 import org.example.mapper.UserMapper;
 import org.example.repository.UserRepository;
 import org.example.service.OrderService;
@@ -34,6 +37,7 @@ import java.util.UUID;
 
 
 @org.springframework.stereotype.Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
     private final UserRepository repository;
@@ -41,20 +45,10 @@ public class UserServiceImpl implements UserService {
     private final OrderService orderService;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
+    private final ServiceMapper serviceMapper;
 
 
-    public UserServiceImpl(
-            UserRepository repository,
-            ServiceService serviceService,
-            OrderService orderService,
-            UserMapper userMapper,
-            PasswordEncoder passwordEncoder) {
-        this.repository = repository;
-        this.serviceService = serviceService;
-        this.userMapper = userMapper;
-        this.passwordEncoder = passwordEncoder;
-        this.orderService = orderService;
-    }
+
 
 
     @Override
@@ -90,7 +84,7 @@ public class UserServiceImpl implements UserService {
     public void addExpertToService(Long expertId, Long serviceId) {
         User expert = repository.findByIdAndRole(expertId, RoleType.EXPERT)
                 .orElseThrow(() -> new NotFoundException("Expert not found"));
-        Service service = serviceService.findById(serviceId)
+        Service service = serviceService.findEntityById(serviceId)
                 .orElseThrow(() -> new NotFoundException("Service not found"));
 
         expert.getServices().add(service);
@@ -104,7 +98,7 @@ public class UserServiceImpl implements UserService {
     public void removeExpertFromService(Long expertId, Long serviceId) {
         User expert = repository.findByIdAndRole(expertId, RoleType.EXPERT)
                 .orElseThrow(() -> new NotFoundException("Expert not found"));
-        Service service = serviceService.findById(serviceId)
+        Service service = serviceService.findEntityById(serviceId)
                 .orElseThrow(() -> new NotFoundException("Service not found"));
         expert.getServices().remove(service);
         service.getExperts().remove(expert);
