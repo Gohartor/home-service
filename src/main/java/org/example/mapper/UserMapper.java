@@ -2,6 +2,7 @@ package org.example.mapper;
 
 import org.example.dto.admin.UserAdminListDto;
 import org.example.dto.admin.UserSearchFilterDto;
+import org.example.dto.customer.CustomerRegisterDto;
 import org.example.dto.expert.ExpertProfileDto;
 import org.example.dto.expert.ExpertRegisterDto;
 import org.example.dto.expert.ExpertResponseDto;
@@ -18,6 +19,14 @@ public interface UserMapper {
     @Mapping(target = "expertStatus", expression = "java(org.example.entity.enumerator.ExpertStatus.NEW)")
     @Mapping(target = "profilePhoto", ignore = true)
     User fromExpertRegisterDto(ExpertRegisterDto dto);
+
+
+    @Mapping(target = "role", constant = "CUSTOMER")
+    @Mapping(target = "negativeScore", constant = "0L")
+    @Mapping(target = "expertStatus", ignore = true)
+    @Mapping(target = "profilePhoto", ignore = true)
+    @Mapping(target = "services", ignore = true)
+    User fromCustomerRegisterDto(CustomerRegisterDto dto);
 
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

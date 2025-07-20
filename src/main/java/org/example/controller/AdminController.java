@@ -22,32 +22,27 @@ public class AdminController {
     private final ServiceService serviceService;
 
 
-    //Create Service
     @PostMapping("/create-service")
     public ResponseEntity<ServiceResponseDto> createService(@RequestBody ServiceRequestDto dto) {
         return ResponseEntity.ok(serviceService.createService(dto));
     }
 
-    // Read/List Services
     @GetMapping("/get-services-list")
     public ResponseEntity<List<ServiceResponseDto>> listServices(@RequestParam Long parentId) {
         return ResponseEntity.ok(serviceService.listServices(parentId));
     }
 
-    // Read/Get Single Service
     @GetMapping("/get-service/{id}")
     public ResponseEntity<ServiceResponseDto> getService(@PathVariable Long id) {
         return ResponseEntity.ok(serviceService.findById(id).orElseThrow());
     }
 
-    // Update Service
     @PutMapping("/update-service/{id}")
     public ResponseEntity<ServiceResponseDto> updateService(@PathVariable Long id,
                                                             @RequestBody ServiceRequestDto dto) {
         return ResponseEntity.ok(serviceService.updateService(id, dto));
     }
 
-    //Delete Service
     @DeleteMapping("/delete-service/{id}")
     public ResponseEntity<String> deleteService(@PathVariable Long id) {
         serviceService.deleteService(id);
@@ -55,25 +50,22 @@ public class AdminController {
     }
 
 
-    //Approve Expert
     @PutMapping("/approve-expert/{id}")
     public ResponseEntity<String> approveExpert(@PathVariable Long id) {
         userService.approveExpert(id);
         return ResponseEntity.ok("Success approve expert");
     }
 
-    @PutMapping("/add-expert-to-service/")
+    @PutMapping("/add-expert-to-service")
     public ResponseEntity<?> addExpertToService(@RequestParam Long expertId, @RequestParam Long serviceId) {
         userService.addExpertToService(expertId, serviceId);
         return ResponseEntity.ok("Success add expert to service");
     }
 
 
-    @PutMapping("/remove-expert-from-service/")
+    @PutMapping("/remove-expert-from-service")
     public ResponseEntity<?> removeExpertFromService(@RequestParam Long expertId, @RequestParam Long serviceId) {
         userService.removeExpertFromService(expertId, serviceId);
         return ResponseEntity.ok("Success remove expert from service");
     }
-
-
 }

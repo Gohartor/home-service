@@ -4,6 +4,7 @@ package org.example.service.impl;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.admin.UserSearchFilterDto;
+import org.example.dto.customer.CustomerRegisterDto;
 import org.example.dto.expert.*;
 import org.example.dto.service.ServiceResponseDto;
 import org.example.entity.Service;
@@ -122,6 +123,18 @@ public class UserServiceImpl implements UserService {
         User user = userMapper.fromExpertRegisterDto(dto);
         user.setPassword(passwordEncoder.encode(dto.password()));
         user.setProfilePhoto(saveProfileImage(photo, dto.email()));
+
+        repository.save(user);
+    }
+
+    @Override
+    public void registerCustomer(CustomerRegisterDto dto) {
+        if (repository.existsByEmail(dto.email()))
+            throw new DuplicateResourceException("Email already in use!");
+
+
+        User user = userMapper.fromCustomerRegisterDto(dto);
+        user.setPassword(passwordEncoder.encode(dto.password()));
 
         repository.save(user);
     }

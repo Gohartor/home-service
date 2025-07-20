@@ -1,6 +1,7 @@
 package org.example.service;
 
 import org.example.dto.admin.UserSearchFilterDto;
+import org.example.dto.customer.CustomerRegisterDto;
 import org.example.dto.expert.*;
 import org.example.entity.User;
 import org.springframework.data.domain.Page;
@@ -26,6 +27,8 @@ public interface UserService {
     String saveProfileImage(MultipartFile file, String email);
 
     void registerExpert(ExpertRegisterDto dto);
+
+    void registerCustomer(CustomerRegisterDto dto);
 
     User login(ExpertLoginDto dto);
 
