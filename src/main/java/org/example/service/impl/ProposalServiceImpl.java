@@ -67,12 +67,11 @@ public class ProposalServiceImpl implements ProposalService {
 
 
     @Override
-    public void createProposal(Long expertId, ProposalCreateDto dto) {
+    public void submitProposal(Long expertId, ProposalCreateDto dto) {
 
         if (repository.existsByExpertIdAndOrderId(expertId, dto.orderId())) {
             throw new IllegalStateException("You have already submitted a proposal for this order.");
         }
-
 
         Order order = orderService.findById(dto.orderId())
                 .orElseThrow(() -> new IllegalArgumentException("Order not found"));
