@@ -61,4 +61,19 @@ public class AdminController {
         userService.approveExpert(id);
         return ResponseEntity.ok("Success approve expert");
     }
+
+    @PutMapping("/add-expert-to-service/")
+    public ResponseEntity<?> addExpertToService(@RequestParam Long expertId, @RequestParam Long serviceId) {
+        userService.addExpertToService(expertId, serviceId);
+        return ResponseEntity.ok("Success add expert to service");
+    }
+
+
+    @PutMapping("/remove-expert-from-service/")
+    public ResponseEntity<?> removeExpertFromService(@RequestParam Long expertId, @RequestParam Long serviceId) {
+        userService.removeExpertFromService(expertId, serviceId);
+        return ResponseEntity.ok("Success remove expert from service");
+    }
+
+
 }
