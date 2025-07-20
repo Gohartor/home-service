@@ -17,9 +17,6 @@ public interface UserMapper {
     @Mapping(target = "role", expression = "java(org.example.entity.enumerator.RoleType.EXPERT)")
     @Mapping(target = "expertStatus", expression = "java(org.example.entity.enumerator.ExpertStatus.NEW)")
     @Mapping(target = "profilePhoto", ignore = true)
-//    @Mapping(target = "id", ignore = true)
-//    @Mapping(target = "createDate", ignore = true)
-//    @Mapping(target = "lastUpdateDate", ignore = true)
     User fromExpertRegisterDto(ExpertRegisterDto dto);
 
 

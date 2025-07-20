@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.dto.customer.ReviewCreateDto;
 import org.example.dto.customer.ReviewDto;
 import org.example.dto.expert.ExpertRatingDto;
-import org.example.dto.expert.OrderRatingDto;
+import org.example.dto.order.OrderRatingDto;
 import org.example.entity.User;
 import org.example.service.ReviewService;
 import org.springframework.http.ResponseEntity;

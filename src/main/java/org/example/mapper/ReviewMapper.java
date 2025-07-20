@@ -1,9 +1,8 @@
 package org.example.mapper;
 
 import org.example.dto.customer.ReviewDto;
-import org.example.dto.expert.OrderRatingDto;
+import org.example.dto.order.OrderRatingDto;
 import org.example.entity.Review;
-import org.example.entity.User;
 import org.mapstruct.*;
 import java.util.List;
 

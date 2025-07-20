@@ -1,4 +1,4 @@
-package org.example.dto.expert;
+package org.example.dto.order;
 
 public record OrderRatingDto(
         Long orderId,

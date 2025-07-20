@@ -1,6 +1,7 @@
 package org.example.dto.expert;
 
 import jakarta.validation.constraints.*;
+import org.example.entity.enumerator.ExpertStatus;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -24,13 +25,7 @@ public record ExpertRegisterDto(
         )
         String password,
 
-
-        @NotEmpty(message = "At least one service must be selected")
-        List<Long> serviceIds,
-
-
-        @Size(max = 500, message = "Bio must not exceed 500 chars")
-        String bio,
+        ExpertStatus expertStatus,
 
         @NotNull(message = "Profile image is required")
         MultipartFile profilePhoto
