@@ -20,7 +20,6 @@ public class AdminController {
 
     private final UserService userService;
     private final ServiceService serviceService;
-    private final UserMapper userMapper;
 
 
     //Create Service
@@ -53,5 +52,13 @@ public class AdminController {
     public ResponseEntity<String> deleteService(@PathVariable Long id) {
         serviceService.deleteService(id);
         return ResponseEntity.ok("success delete service");
+    }
+
+
+    //Approve Expert
+    @PutMapping("/approve-expert/{id}")
+    public ResponseEntity<String> approveExpert(@PathVariable Long id) {
+        userService.approveExpert(id);
+        return ResponseEntity.ok("Success approve expert");
     }
 }
