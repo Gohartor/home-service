@@ -1,6 +1,7 @@
 package org.example.service;
 
 import org.example.dto.admin.UserSearchFilterDto;
+import org.example.dto.customer.CustomerLoginDto;
 import org.example.dto.customer.CustomerRegisterDto;
 import org.example.dto.expert.*;
 import org.example.entity.User;
@@ -30,7 +31,9 @@ public interface UserService {
 
     void registerCustomer(CustomerRegisterDto dto);
 
-    User login(ExpertLoginDto dto);
+    User loginExpert(ExpertLoginDto dto);
+
+    User loginCustomer(CustomerLoginDto dto);
 
     void updateExpertProfile(Long expertId, ExpertUpdateProfileDto dto);
 

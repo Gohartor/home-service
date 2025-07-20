@@ -3,13 +3,10 @@ package org.example.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.example.dto.customer.CustomerLoginDto;
 import org.example.dto.customer.CustomerRegisterDto;
-import org.example.dto.expert.ExpertRegisterDto;
-import org.example.dto.service.ServiceRequestDto;
-import org.example.dto.service.ServiceResponseDto;
 import org.example.entity.User;
 import org.example.mapper.UserMapper;
-import org.example.repository.UserRepository;
 import org.example.service.ServiceService;
 import org.example.service.UserService;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +27,13 @@ public class CustomerController {
         userService.registerCustomer(dto);
         return ResponseEntity.ok("Customer registered successfully.");
     }
+
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestBody @Valid CustomerLoginDto dto) {
+        userService.loginCustomer(dto);
+        return ResponseEntity.ok("success customer login");
+    }
+
 
 
 }

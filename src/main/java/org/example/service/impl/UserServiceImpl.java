@@ -4,6 +4,7 @@ package org.example.service.impl;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.admin.UserSearchFilterDto;
+import org.example.dto.customer.CustomerLoginDto;
 import org.example.dto.customer.CustomerRegisterDto;
 import org.example.dto.expert.*;
 import org.example.dto.service.ServiceResponseDto;
@@ -155,7 +156,7 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public User login(ExpertLoginDto dto) {
+    public User loginExpert(ExpertLoginDto dto) {
 
         User expert = repository.findByEmail(dto.email())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid email or password."));
@@ -169,6 +170,18 @@ public class UserServiceImpl implements UserService {
             throw new IllegalArgumentException("Invalid email or password.");
 
         return expert;
+    }
+
+    @Override
+    public User loginCustomer(CustomerLoginDto dto) {
+        User customer = repository.findByEmail(dto.email())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid email or password."));
+        if (!customer.getExpertStatus().equals(ExpertStatus.APPROVED))
+            throw new IllegalStateException("Your account is not approved yet.");
+        if (!passwordEncoder.matches(dto.password(), customer.getPassword()))
+            throw new IllegalArgumentException("Invalid email or password.");
+
+        return customer;
     }
 
 

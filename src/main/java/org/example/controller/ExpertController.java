@@ -35,7 +35,7 @@ public class ExpertController {
 
     @PostMapping("/login")
     public ResponseEntity<User> login(@RequestBody @Valid ExpertLoginDto dto) {
-        User expert = userService.login(dto);
+        User expert = userService.loginExpert(dto);
         return ResponseEntity.ok(expert);
     }
 
