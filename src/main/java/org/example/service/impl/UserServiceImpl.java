@@ -19,6 +19,7 @@ import org.example.repository.UserRepository;
 import org.example.service.OrderService;
 import org.example.service.ServiceService;
 import org.example.service.UserService;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -39,7 +40,6 @@ import java.util.UUID;
 
 
 @org.springframework.stereotype.Service
-@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
     private final UserRepository repository;
@@ -49,8 +49,14 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final ServiceMapper serviceMapper;
 
-
-
+    public UserServiceImpl(UserRepository repository, ServiceService serviceService, @Lazy OrderService orderService, UserMapper userMapper, PasswordEncoder passwordEncoder, ServiceMapper serviceMapper) {
+        this.repository = repository;
+        this.serviceService = serviceService;
+        this.orderService = orderService;
+        this.userMapper = userMapper;
+        this.passwordEncoder = passwordEncoder;
+        this.serviceMapper = serviceMapper;
+    }
 
 
     @Override

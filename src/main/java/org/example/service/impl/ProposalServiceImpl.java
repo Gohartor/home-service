@@ -1,19 +1,16 @@
 package org.example.service.impl;
 
-import org.example.dto.proposal.ProposalCreateDto;
-import org.example.dto.proposal.ProposalRequestDto;
+import org.example.dto.proposal.ProposalCreateByExpertDto;
 import org.example.entity.Order;
 import org.example.entity.Proposal;
 import org.example.entity.User;
-import org.example.entity.enumerator.RoleType;
-import org.example.entity.enumerator.ServiceStatus;
 import org.example.mapper.ProposalMapper;
 import org.example.repository.ProposalRepository;
 import org.example.service.OrderService;
 import org.example.service.ProposalService;
 import org.example.service.UserService;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -27,7 +24,7 @@ public class ProposalServiceImpl implements ProposalService {
     private final UserService userService;
     private final ProposalMapper mapper;
 
-    public ProposalServiceImpl(ProposalRepository repository, OrderService orderService, UserService userService, ProposalMapper mapper, ProposalMapper proposalMapper) {
+    public ProposalServiceImpl(ProposalRepository repository, @Lazy OrderService orderService, UserService userService, ProposalMapper mapper, ProposalMapper proposalMapper) {
         this.repository = repository;
         this.orderService = orderService;
         this.userService = userService;
@@ -67,7 +64,7 @@ public class ProposalServiceImpl implements ProposalService {
 
 
     @Override
-    public void submitProposal(Long expertId, ProposalCreateDto dto) {
+    public void submitProposalByExpert(Long expertId, ProposalCreateByExpertDto dto) {
 
         if (repository.existsByExpertIdAndOrderId(expertId, dto.orderId())) {
             throw new IllegalStateException("You have already submitted a proposal for this order.");

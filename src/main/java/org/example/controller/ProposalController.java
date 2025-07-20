@@ -2,19 +2,12 @@ package org.example.controller;
 
 import jakarta.validation.Valid;
 
-import org.example.auth.UserPrincipal;
-import org.example.dto.proposal.ProposalCreateDto;
-import org.example.dto.proposal.ProposalRequestDto;
-import org.example.dto.proposal.ProposalResponseDto;
-import org.example.entity.Order;
-import org.example.entity.Proposal;
-import org.example.entity.User;
+import org.example.dto.proposal.ProposalCreateByExpertDto;
 import org.example.mapper.ProposalMapper;
 import org.example.service.OrderService;
 import org.example.service.ProposalService;
 import org.example.service.UserService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -57,8 +50,8 @@ public class ProposalController {
         @PostMapping("/submit-proposal")
         public ResponseEntity<String> submitProposal(
                 @RequestParam Long expertId,
-                @RequestBody @Valid ProposalCreateDto dto) {
-            proposalService.submitProposal(expertId, dto);
+                @RequestBody @Valid ProposalCreateByExpertDto dto) {
+            proposalService.submitProposalByExpert(expertId, dto);
             return ResponseEntity.ok("success submit proposal");
         }
     }

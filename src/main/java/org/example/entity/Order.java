@@ -30,7 +30,8 @@ public class Order extends BaseEntity {
 
     private ZonedDateTime expectedDoneAt;
 
-    private ZonedDateTime doneAt;
+    private ZonedDateTime DoneAt;
+
 
     @ManyToOne
     private User customer;

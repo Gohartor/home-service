@@ -6,7 +6,7 @@ import org.example.auth.UserPrincipal;
 import org.example.dto.expert.ExpertLoginDto;
 import org.example.dto.expert.ExpertRegisterDto;
 import org.example.dto.expert.ExpertUpdateProfileDto;
-import org.example.dto.proposal.ProposalCreateDto;
+import org.example.dto.proposal.ProposalCreateByExpertDto;
 import org.example.entity.User;
 import org.example.mapper.UserMapper;
 import org.example.service.ProposalService;
@@ -51,8 +51,8 @@ public class ExpertController {
     @PostMapping("/submit-proposal")
     public ResponseEntity<String> submitProposal(
             @AuthenticationPrincipal UserPrincipal expert,
-            @RequestBody @Valid ProposalCreateDto dto) {
-        proposalService.submitProposal(expert.getId(), dto);
+            @RequestBody @Valid ProposalCreateByExpertDto dto) {
+        proposalService.submitProposalByExpert(expert.getId(), dto);
         return ResponseEntity.ok("ok");
     }
 
