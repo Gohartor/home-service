@@ -16,10 +16,7 @@ import org.example.service.OrderService;
 import org.example.service.ServiceService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockedStatic;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -50,6 +47,7 @@ class UserServiceImplTest {
     @Mock
     UserMapper userMapper;
 
+    @Spy
     @InjectMocks
     UserServiceImpl userService;
 
@@ -364,14 +362,13 @@ class UserServiceImplTest {
 
         User user = new User();
         when(userMapper.fromExpertRegisterDto(dto)).thenReturn(user);
-        when(passwordEncoder.encode(anyString())).thenReturn("encoded-pass");
-        when(photo.getOriginalFilename()).thenReturn("photo.jpg");
+        when(passwordEncoder.encode("password123")).thenReturn("encoded-pass");
+        lenient().when(photo.getOriginalFilename()).thenReturn("photo.jpg");
 
-        doReturn("storedPhoto.jpg").when(userService).saveProfileImage(photo, "ali@example.com");
 
+        lenient().doReturn("storedPhoto.jpg").when(userService).saveProfileImage(photo, "ali@example.com");
 
         userService.registerExpert(dto);
-
 
         assertEquals("encoded-pass", user.getPassword());
         assertEquals("storedPhoto.jpg", user.getProfilePhoto());
@@ -667,7 +664,6 @@ class UserServiceImplTest {
 
 
 
-
     @Test
     void updateExpertProfile_shouldUpdateExpertAndSavePhoto_whenInputValid() throws Exception {
         Long expertId = 10L;
@@ -676,12 +672,13 @@ class UserServiceImplTest {
         user.setRole(RoleType.EXPERT);
         user.setExpertStatus(ExpertStatus.APPROVED);
 
+
         MockMultipartFile photo = new MockMultipartFile("profile", "ali.jpg", "image/jpg", "img".getBytes());
 
         when(repository.findById(expertId)).thenReturn(Optional.of(user));
         when(orderService.hasActiveOrderForExpert(expertId)).thenReturn(false);
         when(expertUpdateProfileDto.profilePhoto()).thenReturn(photo);
-        when(photo.isEmpty()).thenReturn(false);
+
 
         userService.updateExpertProfile(expertId, expertUpdateProfileDto);
 
@@ -693,6 +690,10 @@ class UserServiceImplTest {
         assertNotNull(user.getProfilePhoto());
         assertEquals(ExpertStatus.PENDING, user.getExpertStatus());
     }
+
+
+
+
 
     @Test
     void updateExpertProfile_shouldThrowIllegalArg_whenExpertNotFound() {
@@ -826,15 +827,16 @@ class UserServiceImplTest {
 
     @Test
     void searchUsers_shouldCallRepositoryWithSpecificationAndReturnResult() {
-        // Arrange
-        UserSearchFilterDto filter = mock(UserSearchFilterDto.class);
-        when(filter.role()).thenReturn(RoleType.EXPERT);
-        when(filter.name()).thenReturn("ali");
-        when(filter.ratingFrom()).thenReturn(4.0);
-        when(filter.ratingTo()).thenReturn(5.0);
-        when(filter.service()).thenReturn("painting");
-        when(filter.page()).thenReturn(2);
-        when(filter.size()).thenReturn(20);
+
+        UserSearchFilterDto filter = new UserSearchFilterDto(
+                RoleType.EXPERT,
+                "ali",
+                "painting",
+                4.0,
+                5.0,
+                2,
+                20
+        );
 
         Page<User> expected = new PageImpl<>(List.of(new User(), new User()));
         ArgumentCaptor<Specification<User>> specCaptor = ArgumentCaptor.forClass(Specification.class);
@@ -842,10 +844,10 @@ class UserServiceImplTest {
 
         when(repository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(expected);
 
-        // Act
+
         Page<User> result = userService.searchUsers(filter);
 
-        // Assert
+
         verify(repository).findAll(specCaptor.capture(), pageableCaptor.capture());
         assertSame(expected, result);
 
@@ -856,27 +858,29 @@ class UserServiceImplTest {
         assertNotNull(specCaptor.getValue());
     }
 
+
     @Test
     void searchUsers_shouldUseDefaultPageable_whenPageAndSizeIsNull() {
-        // Arrange
-        UserSearchFilterDto filter = mock(UserSearchFilterDto.class);
-        when(filter.role()).thenReturn(null);
-        when(filter.name()).thenReturn(null);
-        when(filter.ratingFrom()).thenReturn(null);
-        when(filter.ratingTo()).thenReturn(null);
-        when(filter.service()).thenReturn(null);
-        when(filter.page()).thenReturn(null);
-        when(filter.size()).thenReturn(null);
+
+        UserSearchFilterDto filter = new UserSearchFilterDto(
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
 
         Page<User> expected = Page.empty();
         ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
 
         when(repository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(expected);
 
-        // Act
+
         Page<User> result = userService.searchUsers(filter);
 
-        // Assert
+
         verify(repository).findAll(any(Specification.class), pageableCaptor.capture());
         assertSame(expected, result);
 
@@ -884,6 +888,7 @@ class UserServiceImplTest {
         assertEquals(0, pageable.getPageNumber());
         assertEquals(10, pageable.getPageSize());
     }
+
 
 
 

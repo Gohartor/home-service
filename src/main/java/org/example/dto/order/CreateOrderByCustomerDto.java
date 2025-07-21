@@ -12,7 +12,7 @@ public record CreateOrderByCustomerDto(
 
         @NotNull
         @Positive
-        Integer offeredPrice,
+        Double offeredPrice,
 
         @NotNull
         ZonedDateTime expectedDoneAt,
