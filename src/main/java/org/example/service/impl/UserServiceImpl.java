@@ -72,6 +72,7 @@ public class UserServiceImpl implements UserService {
                 .toList();
     }
 
+
     @Override
     public void approveExpert(Long expertId) {
         User user = repository.findByIdAndRole(expertId, RoleType.EXPERT)
@@ -79,6 +80,8 @@ public class UserServiceImpl implements UserService {
         user.setExpertStatus(ExpertStatus.APPROVED);
         repository.save(user);
     }
+
+
 
     @Override
     public void rejectExpert(Long expertId) {
@@ -190,6 +193,8 @@ public class UserServiceImpl implements UserService {
     }
 
 
+
+
     public void updateExpertProfile(Long expertId, ExpertUpdateProfileDto dto) {
         User user = repository.findById(expertId)
                 .orElseThrow(() -> new IllegalArgumentException("Expert not found."));
@@ -218,6 +223,8 @@ public class UserServiceImpl implements UserService {
         repository.save(user);
     }
 
+
+
     @Override
     public void updateCustomerProfile(Long customerId, CustomerUpdateProfileDto dto) {
         User user = repository.findById(customerId)
@@ -232,6 +239,7 @@ public class UserServiceImpl implements UserService {
     }
 
 
+    @Override
     public Page<User> searchUsers(UserSearchFilterDto filter) {
 
         Specification<User> spec = (root, query, cb) -> {
