@@ -25,5 +25,7 @@ public interface OrderService {
 
     void createOrderByCustomer(CreateOrderByCustomerDto dto);
 
+    void selectProposal(Long orderId, Long proposalId);
+
 
 }

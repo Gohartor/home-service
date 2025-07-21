@@ -6,6 +6,7 @@ import org.example.dto.expert.ExpertOrderSummaryDto;
 import org.example.dto.order.CreateOrderByCustomerDto;
 import org.example.dto.order.OrderMapper;
 import org.example.entity.Order;
+import org.example.entity.Proposal;
 import org.example.entity.Service;
 import org.example.entity.User;
 import org.example.entity.enumerator.OrderStatus;
@@ -16,6 +17,7 @@ import org.example.service.ServiceService;
 import org.example.service.UserService;
 
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.transaction.annotation.Transactional;
 import org.webjars.NotFoundException;
 
 import java.util.List;
@@ -122,6 +124,26 @@ public class OrderServiceImpl implements OrderService {
         order.setPaid(false);
         order.setTotalPrice(null);
 
+
+        repository.save(order);
+    }
+
+
+
+    @Override
+    @Transactional
+    public void selectProposal(Long orderId, Long proposalId) {
+        Order order = repository.findById(orderId)
+                .orElseThrow(() -> new NotFoundException("Order not found"));
+
+        Proposal proposal = proposalService.findById(proposalId)
+                .orElseThrow(() -> new NotFoundException("Proposal not found"));
+
+        if (!proposal.getOrder().getId().equals(orderId)) {
+            throw new IllegalArgumentException("Proposal does not belong to the order");
+        }
+
+        order.setStatus(OrderStatus.PROPOSAL_SELECTED);
 
         repository.save(order);
     }

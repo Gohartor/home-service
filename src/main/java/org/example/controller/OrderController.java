@@ -53,4 +53,13 @@ public class OrderController {
                 orderService.getExpertOrderDetail(orderId, principal.getId());
         return ResponseEntity.ok(dto);
     }
+
+
+    @PostMapping("/select-proposal")
+    public ResponseEntity<String> selectProposal(
+            @RequestParam Long proposalId,
+            @RequestParam Long orderId) {
+        orderService.selectProposal(orderId, proposalId);
+        return ResponseEntity.ok("success select proposal");
+    }
 }
