@@ -63,8 +63,7 @@ public class ReviewController {
             @RequestParam("customerId") Long customerId,
             @RequestBody ReviewCreateDto dto)
     {
-        var saved = reviewService.addReview(customerId, dto);
-        return ResponseEntity.ok(saved);
+        return ResponseEntity.ok(reviewService.addReview(customerId, dto));
     }
 
 

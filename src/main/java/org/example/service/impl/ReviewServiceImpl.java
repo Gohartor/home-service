@@ -78,7 +78,6 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public ReviewDto addReview(Long customerId, ReviewCreateDto dto) {
 
-
         Order order = orderService.findById(dto.orderId())
                 .orElseThrow(() -> new EntityNotFoundException("Order not found"));
 
