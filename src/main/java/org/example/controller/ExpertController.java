@@ -48,12 +48,13 @@ public class ExpertController {
         return ResponseEntity.ok("Profile updated successfully. Waiting for approval.");
     }
 
+
     @PostMapping("/submit-proposal")
     public ResponseEntity<String> submitProposal(
-            @AuthenticationPrincipal UserPrincipal expert,
+            @RequestParam Long expertId,
             @RequestBody @Valid ProposalCreateByExpertDto dto) {
-        proposalService.submitProposalByExpert(expert.getId(), dto);
-        return ResponseEntity.ok("ok");
+        proposalService.submitProposalByExpert(expertId, dto);
+        return ResponseEntity.ok("success submit proposal for expert.");
     }
 
 

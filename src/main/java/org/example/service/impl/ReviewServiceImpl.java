@@ -7,7 +7,7 @@ import org.example.dto.expert.ExpertRatingDto;
 import org.example.dto.order.OrderRatingDto;
 import org.example.entity.Order;
 import org.example.entity.Review;
-import org.example.entity.enumerator.ServiceStatus;
+import org.example.entity.enumerator.OrderStatus;
 import org.example.mapper.ReviewMapper;
 import org.example.repository.ReviewRepository;
 import org.example.service.OrderService;
@@ -83,7 +83,7 @@ public class ReviewServiceImpl implements ReviewService {
 
         if (!order.getCustomer().getId().equals(customerId))
             throw new AccessDeniedException("Not Your Order!");
-        if (!order.getStatus().equals(ServiceStatus.COMPLETED))
+        if (!order.getStatus().equals(OrderStatus.COMPLETED))
             throw new IllegalStateException("Order not completed");
         if (repository.findByOrderId(order.getId()).isPresent())
             throw new IllegalStateException("Review already exists for this order");

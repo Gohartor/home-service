@@ -8,7 +8,7 @@ import org.example.dto.order.OrderMapper;
 import org.example.entity.Order;
 import org.example.entity.Service;
 import org.example.entity.User;
-import org.example.entity.enumerator.ServiceStatus;
+import org.example.entity.enumerator.OrderStatus;
 import org.example.repository.OrderRepository;
 import org.example.service.OrderService;
 import org.example.service.ProposalService;
@@ -68,7 +68,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     public boolean hasActiveOrderForExpert(Long expertId) {
-        return repository.existsByExpert_IdAndStatus(expertId, ServiceStatus.AWAITING_SPECIALIST);
+        return repository.existsByExpert_IdAndStatus(expertId, OrderStatus.IN_PROGRESS);
     }
 
 
@@ -118,7 +118,7 @@ public class OrderServiceImpl implements OrderService {
         order.setOfferedPrice((double) dto.offeredPrice());
         order.setAddress(dto.address());
         order.setExpectedDoneAt(dto.expectedDoneAt());
-        order.setStatus(ServiceStatus.PENDING_PROPOSAL);
+        order.setStatus(OrderStatus.PENDING_PROPOSAL);
         order.setPaid(false);
         order.setTotalPrice(null);
 

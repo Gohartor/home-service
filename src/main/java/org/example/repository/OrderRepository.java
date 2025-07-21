@@ -1,10 +1,8 @@
 package org.example.repository;
 
 import org.example.entity.Order;
-import org.example.entity.User;
-import org.example.entity.enumerator.ServiceStatus;
+import org.example.entity.enumerator.OrderStatus;
 import org.example.repository.base.BaseRepository;
-import org.springframework.data.domain.Limit;
 
 import java.util.List;
 
@@ -14,7 +12,7 @@ public interface OrderRepository
 
     List<Order> findByServiceId(Long serviceId);
 
-    boolean existsByExpert_IdAndStatus(Long customerId, ServiceStatus status);
+    boolean existsByExpert_IdAndStatus(Long customerId, OrderStatus status);
 
     List<Order> findAllByExpertIdOrderByCreateDateDesc(Long expertId);
 }

@@ -12,7 +12,7 @@ public record ProposalCreateByExpertDto(
 
         @NotNull(message = "Suggested price is required")
         @Positive(message = "Price must be positive")
-        Integer suggestedPrice,
+        Double suggestedPrice,
 
         @NotNull(message = "Suggested start time is required")
         ZonedDateTime suggestedStartTime,

@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.example.entity.base.BaseEntity;
-import org.example.entity.enumerator.ServiceStatus;
+import org.example.entity.enumerator.OrderStatus;
 
 import java.time.ZonedDateTime;
 
@@ -43,6 +43,6 @@ public class Order extends BaseEntity {
     private Service service;
 
     @Enumerated(EnumType.STRING)
-    private ServiceStatus status;
+    private OrderStatus status;
 
 }

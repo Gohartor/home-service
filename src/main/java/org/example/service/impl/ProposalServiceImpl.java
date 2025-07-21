@@ -4,13 +4,16 @@ import org.example.dto.proposal.ProposalCreateByExpertDto;
 import org.example.entity.Order;
 import org.example.entity.Proposal;
 import org.example.entity.User;
+import org.example.entity.enumerator.OrderStatus;
 import org.example.mapper.ProposalMapper;
 import org.example.repository.ProposalRepository;
 import org.example.service.OrderService;
 import org.example.service.ProposalService;
 import org.example.service.UserService;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -61,9 +64,8 @@ public class ProposalServiceImpl implements ProposalService {
     }
 
 
-
-
     @Override
+    @Transactional
     public void submitProposalByExpert(Long expertId, ProposalCreateByExpertDto dto) {
 
         if (repository.existsByExpertIdAndOrderId(expertId, dto.orderId())) {
@@ -73,21 +75,33 @@ public class ProposalServiceImpl implements ProposalService {
         Order order = orderService.findById(dto.orderId())
                 .orElseThrow(() -> new IllegalArgumentException("Order not found"));
 
+        if (!(order.getStatus() == OrderStatus.PENDING_PROPOSAL || order.getStatus() == OrderStatus.PROPOSAL_SELECTED)) {
+            throw new IllegalStateException("Order is not open for proposals.");
+        }
+
         User expert = userService.findById(expertId)
                 .orElseThrow(() -> new IllegalArgumentException("Expert not found"));
 
         if (!expert.getServices().contains(order.getService())) {
-            throw new IllegalStateException("You are not allowed to submit a proposal for this order.");
+            throw new AccessDeniedException("You are not allowed to submit a proposal for this order.");
         }
 
-
         Proposal proposal = mapper.fromDto(dto);
+        System.out.println("Proposal ID before save: " + proposal.getId());
         proposal.setCreateDate(ZonedDateTime.now());
         proposal.setExpert(expert);
         proposal.setOrder(order);
+        proposal.setDuration(dto.estimatedDuration());
+        proposal.setProposedPrice(dto.suggestedPrice());
+        proposal.setProposedStartAt(dto.suggestedStartTime());
         repository.save(proposal);
-    }
 
+        if (repository.countByOrder(order) == 1) {
+            order.setStatus(OrderStatus.PROPOSAL_SELECTED);
+            orderService.save(order);
+        }
+
+    }
 
 
 }

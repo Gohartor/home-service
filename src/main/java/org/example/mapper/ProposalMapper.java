@@ -16,8 +16,9 @@ public interface ProposalMapper {
 
     ProposalResponseDto toDto(Proposal proposal);
 
+    @Mapping(target = "id", ignore = true)
     @Mapping(target = "expert", ignore = true)
     @Mapping(target = "order", ignore = true)
     Proposal fromDto(ProposalCreateByExpertDto dto);
-    
+
 }

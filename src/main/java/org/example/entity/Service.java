@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.example.entity.base.BaseEntity;
-import org.example.entity.enumerator.ServiceStatus;
 
 import java.util.HashSet;
 import java.util.Set;

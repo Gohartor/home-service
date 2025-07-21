@@ -7,7 +7,7 @@ import org.example.entity.Order;
 import org.example.entity.Transaction;
 import org.example.entity.User;
 import org.example.entity.Wallet;
-import org.example.entity.enumerator.ServiceStatus;
+import org.example.entity.enumerator.OrderStatus;
 import org.example.entity.enumerator.TransactionType;
 import org.example.mapper.TransactionMapper;
 import org.example.mapper.WalletMapper;
@@ -41,7 +41,7 @@ public class PaymentServiceImpl implements PaymentService {
 
         if (!order.getCustomer().getId().equals(userId))
             return new PaymentResultDto(false, "you do not own the order");
-        if (!order.getStatus().equals(ServiceStatus.COMPLETED))
+        if (!order.getStatus().equals(OrderStatus.COMPLETED))
             return new PaymentResultDto(false, "can not complete payment (not order found)");
         if (order.isPaid())
             return new PaymentResultDto(false, "cost this order is paid");
@@ -64,7 +64,7 @@ public class PaymentServiceImpl implements PaymentService {
         transactionService.save(transaction);
 
 
-        order.setStatus(ServiceStatus.COMPLETED);
+        order.setStatus(OrderStatus.COMPLETED);
         order.setPaid(true);
 
         applyLatePenaltyOrReward(order);
