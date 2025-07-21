@@ -29,5 +29,7 @@ public interface OrderService {
 
     void startOrder(Long orderId);
 
+    void finishOrder(Long orderId);
+
 
 }

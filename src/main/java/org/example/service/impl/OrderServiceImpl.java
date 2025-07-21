@@ -179,6 +179,19 @@ public class OrderServiceImpl implements OrderService {
     }
 
 
+    @Override
+    @Transactional
+    public void finishOrder(Long orderId) {
+        Order order = repository.findById(orderId)
+                .orElseThrow(() -> new NotFoundException("Order not found"));
+
+        if (order.getStatus() != OrderStatus.IN_PROGRESS) {
+            throw new BusinessException("The order has not started or is already completed/canceled.");
+        }
+
+        order.setStatus(OrderStatus.COMPLETED);
+        repository.save(order);
+    }
 
 
 }

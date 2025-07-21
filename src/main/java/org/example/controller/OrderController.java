@@ -64,10 +64,16 @@ public class OrderController {
     }
 
 
-    @PostMapping("start-order/{orderId}")
+    @PostMapping("/start-order/{orderId}")
     public ResponseEntity<String> startOrder(@PathVariable Long orderId) {
         orderService.startOrder(orderId);
         return ResponseEntity.ok("success start order");
+    }
+
+    @PostMapping("/finish-order/{orderId}")
+    public ResponseEntity<String> finishOrder(@PathVariable Long orderId) {
+        orderService.finishOrder(orderId);
+        return ResponseEntity.ok("success finish order");
     }
 
 
