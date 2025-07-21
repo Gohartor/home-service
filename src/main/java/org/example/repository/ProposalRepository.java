@@ -19,6 +19,7 @@ public interface ProposalRepository
     Long countByOrder(Order order);
 
     Long countByOrder_Id(Long orderId);
-    
-    
+
+
+
 }

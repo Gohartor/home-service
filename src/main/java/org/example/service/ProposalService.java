@@ -2,6 +2,7 @@ package org.example.service;
 
 import org.example.dto.proposal.ProposalCreateByExpertDto;
 
+import org.example.dto.proposal.ProposalViewDto;
 import org.example.entity.Proposal;
 
 import java.util.List;
@@ -16,4 +17,6 @@ public interface ProposalService {
     long countAllByOrder_Id(Long orderId);
 
     void submitProposalByExpert(Long expertId, ProposalCreateByExpertDto dto);
+
+    List<ProposalViewDto> getOrderProposals(Long orderId, String sortBy);
 }

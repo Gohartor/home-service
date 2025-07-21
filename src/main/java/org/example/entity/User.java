@@ -39,6 +39,8 @@ public class User extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private ExpertStatus expertStatus;
 
+    private Double score;
+
     @ManyToMany
     @JoinTable(
             name = "user_services",

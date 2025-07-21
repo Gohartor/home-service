@@ -3,12 +3,15 @@ package org.example.controller;
 import jakarta.validation.Valid;
 
 import org.example.dto.proposal.ProposalCreateByExpertDto;
+import org.example.dto.proposal.ProposalViewDto;
 import org.example.mapper.ProposalMapper;
 import org.example.service.OrderService;
 import org.example.service.ProposalService;
 import org.example.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 @RestController
@@ -27,31 +30,24 @@ public class ProposalController {
         this.proposalMapper = proposalMapper;
     }
 
-//    @PostMapping("/submit-proposal")
-//    public ResponseEntity<ProposalResponseDto> submitProposal(@Valid @RequestBody ProposalRequestDto dto) {
-//        Order order = orderService.findById(dto.getOrderId())
-//                .orElseThrow(() -> new IllegalArgumentException("order not found"));
-//
-//        User expert = userService.findById(dto.getExpertId())
-//                .orElseThrow(() -> new IllegalArgumentException("expert not found"));
-//
-//        Proposal proposal = proposalMapper.toProposal(dto);
-//        proposal.setOrder(order);
-//        proposal.setExpert(expert);
-//
-//        Proposal saved = proposalService.save(proposal);
-//
-//        return ResponseEntity.ok(proposalMapper.toDto(saved));
-//    }
 
-
-
-
-        @PostMapping("/submit-proposal")
-        public ResponseEntity<String> submitProposal(
-                @RequestParam Long expertId,
-                @RequestBody @Valid ProposalCreateByExpertDto dto) {
-            proposalService.submitProposalByExpert(expertId, dto);
-            return ResponseEntity.ok("success submit proposal");
-        }
+    @PostMapping("/submit-proposal")
+    public ResponseEntity<String> submitProposal(
+            @RequestParam Long expertId,
+            @RequestBody @Valid ProposalCreateByExpertDto dto) {
+        proposalService.submitProposalByExpert(expertId, dto);
+        return ResponseEntity.ok("success submit proposal");
     }
+
+
+
+    @GetMapping("/orders/{orderId}/proposals")
+    public ResponseEntity<List<ProposalViewDto>> getOrderProposals(
+            @PathVariable Long orderId,
+            @RequestParam(defaultValue = "price") String sortBy
+    ) {
+        return ResponseEntity.ok(proposalService.getOrderProposals(orderId, sortBy));
+    }
+
+
+}

@@ -1,6 +1,7 @@
 package org.example.service.impl;
 
 import org.example.dto.proposal.ProposalCreateByExpertDto;
+import org.example.dto.proposal.ProposalViewDto;
 import org.example.entity.Order;
 import org.example.entity.Proposal;
 import org.example.entity.User;
@@ -16,8 +17,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZonedDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ProposalServiceImpl implements ProposalService {
@@ -102,6 +105,28 @@ public class ProposalServiceImpl implements ProposalService {
         }
 
     }
+
+
+
+    @Override
+    public List<ProposalViewDto> getOrderProposals(Long orderId, String sortBy) {
+        List<Proposal> proposals = repository.findByOrderId(orderId);
+
+        if ("score".equalsIgnoreCase(sortBy)) {
+            proposals = proposals.stream()
+                    .filter(p -> p.getExpert() != null && p.getExpert().getScore() != null)
+                    .collect(Collectors.toList());
+            proposals.sort(Comparator.comparing(
+                    (Proposal p) -> p.getExpert().getScore(),
+                    Comparator.reverseOrder()
+            ));
+        } else {
+            proposals.sort(Comparator.comparing(Proposal::getProposedPrice));
+        }
+        return mapper.toViewDtoList(proposals);
+    }
+
+
 
 
 }
