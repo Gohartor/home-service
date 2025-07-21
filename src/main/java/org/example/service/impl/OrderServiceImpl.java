@@ -10,6 +10,7 @@ import org.example.entity.Proposal;
 import org.example.entity.Service;
 import org.example.entity.User;
 import org.example.entity.enumerator.OrderStatus;
+import org.example.exception.BusinessException;
 import org.example.repository.OrderRepository;
 import org.example.service.OrderService;
 import org.example.service.ProposalService;
@@ -20,6 +21,8 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.transaction.annotation.Transactional;
 import org.webjars.NotFoundException;
 
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -147,4 +150,35 @@ public class OrderServiceImpl implements OrderService {
 
         repository.save(order);
     }
+
+
+    @Override
+    @Transactional
+    public void startOrder(Long orderId) {
+
+        Order order = repository.findById(orderId)
+                .orElseThrow(() -> new NotFoundException("Order not found"));
+
+        if (order.getStatus() != OrderStatus.EXPERT_ARRIVED) {
+            throw new BusinessException("Order is not ready to be started by customer.");
+        }
+
+        Proposal proposal = proposalService.findByOrderIdAndIsAcceptedTrue(orderId)
+                .orElseThrow(() -> new BusinessException("No accepted proposal for this order."));
+
+        if (proposal.getProposedStartAt() == null) {
+            throw new BusinessException("No proposed start time set for the accepted proposal!");
+        }
+
+        if (ZonedDateTime.now().isBefore(proposal.getProposedStartAt())) {
+            throw new BusinessException("Cannot start the order before the proposed start time.");
+        }
+
+        order.setStatus(OrderStatus.IN_PROGRESS);
+        repository.save(order);
+    }
+
+
+
+
 }

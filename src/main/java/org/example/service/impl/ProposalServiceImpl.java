@@ -126,7 +126,10 @@ public class ProposalServiceImpl implements ProposalService {
         return mapper.toViewDtoList(proposals);
     }
 
-
+    @Override
+    public Optional<Proposal> findByOrderIdAndIsAcceptedTrue(Long orderId) {
+        return repository.findByOrderIdAndIsAcceptedTrue(orderId);
+    }
 
 
 }

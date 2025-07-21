@@ -1,5 +1,6 @@
 package org.example.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import jakarta.persistence.ManyToOne;
@@ -23,6 +24,9 @@ public class Proposal extends BaseEntity {
     private ZonedDateTime proposedStartAt;
 
     private Integer duration;
+
+    @Column(nullable = false)
+    private boolean isAccepted = false;
 
     @ManyToOne
     private Order order;

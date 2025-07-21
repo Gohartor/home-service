@@ -62,4 +62,13 @@ public class OrderController {
         orderService.selectProposal(orderId, proposalId);
         return ResponseEntity.ok("success select proposal");
     }
+
+
+    @PostMapping("start-order/{orderId}")
+    public ResponseEntity<String> startOrder(@PathVariable Long orderId) {
+        orderService.startOrder(orderId);
+        return ResponseEntity.ok("success start order");
+    }
+
+
 }

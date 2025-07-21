@@ -27,5 +27,7 @@ public interface OrderService {
 
     void selectProposal(Long orderId, Long proposalId);
 
+    void startOrder(Long orderId);
+
 
 }

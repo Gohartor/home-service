@@ -19,4 +19,7 @@ public interface ProposalService {
     void submitProposalByExpert(Long expertId, ProposalCreateByExpertDto dto);
 
     List<ProposalViewDto> getOrderProposals(Long orderId, String sortBy);
+
+    Optional<Proposal> findByOrderIdAndIsAcceptedTrue(Long orderId);
+
 }

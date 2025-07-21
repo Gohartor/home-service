@@ -5,6 +5,7 @@ import org.example.entity.Proposal;
 import org.example.repository.base.BaseRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ProposalRepository
         extends BaseRepository<Proposal, Long> {
@@ -19,6 +20,10 @@ public interface ProposalRepository
     Long countByOrder(Order order);
 
     Long countByOrder_Id(Long orderId);
+
+
+    Optional<Proposal> findByOrderIdAndIsAcceptedTrue(Long orderId);
+
 
 
 
