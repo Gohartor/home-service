@@ -1,4 +1,4 @@
-package org.example.auth;
+package org.example.security;
 
 import lombok.*;
 import org.example.entity.enumerator.RoleType;
@@ -9,13 +9,13 @@ import java.util.Collections;
 
 
 @Getter
-public class UserPrincipal implements UserDetails {
+public class CustomUserDetails implements UserDetails {
     private final Long id;
     private final String email;
     private final String password;
     private final RoleType role;
 
-    public UserPrincipal(Long id, String email, String password, RoleType role) {
+    public CustomUserDetails(Long id, String email, String password, RoleType role) {
         this.id = id;
         this.email = email;
         this.password = password;
@@ -30,7 +30,7 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public String getUsername() {
-        return "";
+        return email;
     }
 
     @Override

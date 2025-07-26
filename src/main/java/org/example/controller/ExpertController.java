@@ -2,8 +2,8 @@ package org.example.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.example.auth.UserPrincipal;
 import org.example.dto.expert.ExpertLoginDto;
+import org.example.dto.expert.ExpertProfileDto;
 import org.example.dto.expert.ExpertRegisterDto;
 import org.example.dto.expert.ExpertUpdateProfileDto;
 import org.example.dto.proposal.ProposalCreateByExpertDto;
@@ -12,8 +12,8 @@ import org.example.mapper.UserMapper;
 import org.example.service.ProposalService;
 import org.example.service.UserService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 
 @RestController
@@ -26,13 +26,25 @@ public class ExpertController {
     private final UserMapper userMapper;
 
 
+//    @PostMapping("/register")
+//    public ResponseEntity<String> registerExpert(@ModelAttribute @Valid ExpertRegisterDto dto) {
+//        userService.registerExpert(dto);
+//        return ResponseEntity.ok("Expert registered successfully. Waiting for approval.");
+//    }
+
+
+
     @PostMapping("/register")
-    public ResponseEntity<String> registerExpert(@ModelAttribute @Valid ExpertRegisterDto dto) {
-        userService.registerExpert(dto);
-        return ResponseEntity.ok("Expert registered successfully. Waiting for approval.");
+    public ResponseEntity<ExpertProfileDto> registerExpert(
+            @RequestPart("data") @Valid ExpertRegisterDto data,
+            @RequestPart(value = "profilePhoto", required = false) MultipartFile profilePhoto
+    ) {
+        return ResponseEntity.ok(userService.registerExpert(data, profilePhoto));
     }
 
 
+
+    //TODO pass remove from response (entity to dto)
     @PostMapping("/login")
     public ResponseEntity<User> login(@RequestBody @Valid ExpertLoginDto dto) {
         User expert = userService.loginExpert(dto);

@@ -118,24 +118,24 @@ public class UserServiceImpl implements UserService {
     }
 
 
-    @Override
-    @Transactional
-    public void registerExpert(ExpertRegisterDto dto) {
-        if (repository.existsByEmail(dto.email()))
-            throw new DuplicateResourceException("Email already in use!");
-
-        MultipartFile photo = dto.profilePhoto();
-        if (photo == null || photo.isEmpty())
-            throw new IllegalArgumentException("Profile photo is required!");
-        if (photo.getSize() > 300 * 1024)
-            throw new IllegalArgumentException("File too large!");
-
-        User user = userMapper.fromExpertRegisterDto(dto);
-        user.setPassword(passwordEncoder.encode(dto.password()));
-        user.setProfilePhoto(saveProfileImage(photo, dto.email()));
-
-        repository.save(user);
-    }
+//    @Override
+//    @Transactional
+//    public void registerExpert(ExpertRegisterDto dto) {
+//        if (repository.existsByEmail(dto.email()))
+//            throw new DuplicateResourceException("Email already in use!");
+//
+//        MultipartFile photo = dto.profilePhoto();
+//        if (photo == null || photo.isEmpty())
+//            throw new IllegalArgumentException("Profile photo is required!");
+//        if (photo.getSize() > 300 * 1024)
+//            throw new IllegalArgumentException("File too large!");
+//
+//        User user = userMapper.fromExpertRegisterDto(dto);
+//        user.setPassword(passwordEncoder.encode(dto.password()));
+//        user.setProfilePhoto(saveProfileImage(photo, dto.email()));
+//
+//        repository.save(user);
+//    }
 
     @Override
     public void registerCustomer(CustomerRegisterDto dto) {
@@ -207,21 +207,21 @@ public class UserServiceImpl implements UserService {
 
         userMapper.updateExpertProfileFromDto(dto, user);
 
-        if (dto.profilePhoto() != null && !dto.profilePhoto().isEmpty()) {
-            Path path = Paths.get("uploads/profile-photos/" + UUID.randomUUID() + "-" + dto.profilePhoto().getOriginalFilename());
-            try {
-                Files.createDirectories(path.getParent());
-                dto.profilePhoto().transferTo(path);
-            } catch (IOException e) {
-                throw new RuntimeException("Failed to save profile photo", e);
-            }
+        boolean photoWasEmpty = (user.getProfilePhoto() == null || user.getProfilePhoto().isBlank());
+        boolean photoWillBeSet = (dto.profilePhoto() != null && !dto.profilePhoto().isEmpty());
 
-            user.setProfilePhoto(path.toString());
+        if (photoWillBeSet) {
+            String filePath = "uploads/" + user.getProfilePhoto();
+            user.setProfilePhoto(filePath);
+
+            if (photoWasEmpty) {
+                user.setExpertStatus(ExpertStatus.PENDING);
+            }
         }
 
-        user.setExpertStatus(ExpertStatus.PENDING);
         repository.save(user);
     }
+
 
 
 
@@ -259,9 +259,11 @@ public class UserServiceImpl implements UserService {
                 predicates.add(cb.lessThanOrEqualTo(root.get("rating"), filter.ratingTo()));
             }
             if (filter.service() != null && !filter.service().isBlank()) {
-                predicates.add(cb.like(cb.lower(root.get("name")), "%" + filter.service().toLowerCase() + "%"));
+                predicates.add(cb.like(
+                        cb.lower(root.join("services").get("name")),
+                        "%" + filter.service().toLowerCase() + "%"
+                ));
             }
-            //join in service not user -> join
             return cb.and(predicates.toArray(new Predicate[0]));
         };
 
@@ -276,23 +278,37 @@ public class UserServiceImpl implements UserService {
 
 
 
+
+
+
     @Override
     public ExpertProfileDto registerExpert(ExpertRegisterDto dto, MultipartFile profilePhoto) {
 
-        String photoUrl;
-        try {
-            photoUrl = FileStorageService.saveProfilePhoto(profilePhoto);
+        String photoUrl = null;
+        if (profilePhoto != null && !profilePhoto.isEmpty()) {
+            try {
+                photoUrl = FileStorageService.saveProfilePhoto(profilePhoto);
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to save profile photo", e);
+            }
         }
-        catch (IOException e) {
-            throw new RuntimeException("Failed to save profile photo", e);
-        }
-
 
         User expert = new User();
-        expert.setExpertStatus(ExpertStatus.PENDING);
         expert.setProfilePhoto(photoUrl);
 
+        if (photoUrl == null) {
+            expert.setExpertStatus(ExpertStatus.NEW);
+        } else {
+            expert.setExpertStatus(ExpertStatus.PENDING);
+        }
+
+        expert.setFirstName(dto.firstName());
+        expert.setLastName(dto.lastName());
+        expert.setEmail(dto.email());
+        expert.setPassword(dto.password());
         repository.save(expert);
+
         return userMapper.mapToProfileDto(expert);
     }
+
 }

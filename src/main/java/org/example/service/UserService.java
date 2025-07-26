@@ -28,7 +28,7 @@ public interface UserService {
 
     String saveProfileImage(MultipartFile file, String email);
 
-    void registerExpert(ExpertRegisterDto dto);
+//    void registerExpert(ExpertRegisterDto dto);
 
     void registerCustomer(CustomerRegisterDto dto);
 

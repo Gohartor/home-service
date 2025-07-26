@@ -59,21 +59,13 @@ public class UserController {
 
 
     @PostMapping("/search")
-    @PreAuthorize("hasRole('ADMIN')")
     public Page<UserAdminListDto> searchUsers(@RequestBody UserSearchFilterDto filter) {
         Page<User> page = userService.searchUsers(filter);
         return page.map(userMapper::toUserAdminListDto);
     }
 
 
-    @PostMapping("/register")
-    public ResponseEntity<ExpertProfileDto> registerExpert(
-            @RequestPart("data") @Valid ExpertRegisterDto data,
-            @RequestPart("profilePhoto") @Valid MultipartFile profilePhoto
-    ) {
-        ExpertProfileDto profileDto = userService.registerExpert(data, profilePhoto);
-        return ResponseEntity.ok(profileDto);
-    }
+
 
 
 }

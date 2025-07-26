@@ -17,7 +17,7 @@ public class Main {
 
 // hot fix 2
 
-//expert operation (submit -> all validation)
-//valid status -> count proposal -> status order (check double)
+// expert operation (submit -> all validation)
+// valid status -> count proposal -> status order (check double)
 
 // all Customer operation

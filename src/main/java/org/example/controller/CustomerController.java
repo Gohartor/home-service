@@ -43,10 +43,11 @@ public class CustomerController {
     @PutMapping("/update-profile")
     public ResponseEntity<String> updateProfile(
             @RequestParam Long customerId,
-            @RequestParam @Valid CustomerUpdateProfileDto dto) {
+            @RequestBody @Valid CustomerUpdateProfileDto dto) {
         userService.updateCustomerProfile(customerId, dto);
         return ResponseEntity.ok("Profile updated successfully.");
     }
+
 
 
     @PostMapping("/create-order")

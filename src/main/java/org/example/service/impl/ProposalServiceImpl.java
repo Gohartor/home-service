@@ -67,6 +67,8 @@ public class ProposalServiceImpl implements ProposalService {
     }
 
 
+
+    //TODO base price and time future
     @Override
     @Transactional
     public void submitProposalByExpert(Long expertId, ProposalCreateByExpertDto dto) {
@@ -108,6 +110,7 @@ public class ProposalServiceImpl implements ProposalService {
 
 
 
+    //TODO sorting by query in jpa
     @Override
     public List<ProposalViewDto> getOrderProposals(Long orderId, String sortBy) {
         List<Proposal> proposals = repository.findByOrderId(orderId);
