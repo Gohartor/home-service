@@ -3,13 +3,13 @@ package org.example.service.impl;
 import org.example.dto.expert.ExpertOrderDetailDto;
 import org.example.dto.expert.ExpertOrderSummaryDto;
 import org.example.dto.order.CreateOrderByCustomerDto;
-import org.example.dto.order.OrderMapper;
 import org.example.entity.Order;
 import org.example.entity.Proposal;
 import org.example.entity.Service;
 import org.example.entity.User;
 import org.example.entity.enumerator.OrderStatus;
 import org.example.exception.BusinessException;
+import org.example.mapper.OrderMapper;
 import org.example.repository.OrderRepository;
 import org.example.service.ProposalService;
 import org.example.service.ServiceService;
@@ -74,8 +74,8 @@ class OrderServiceImplTest {
         when(repository.findAllByExpertIdOrderByCreateDateDesc(3L)).thenReturn(orders);
 
         ExpertOrderSummaryDto dto1 = mock(ExpertOrderSummaryDto.class), dto2 = mock(ExpertOrderSummaryDto.class);
-        when(orderMapper.toSummaryDto(o1)).thenReturn(dto1);
-        when(orderMapper.toSummaryDto(o2)).thenReturn(dto2);
+        when(orderMapper.fromOrderToExpertOrderSummaryDto(o1)).thenReturn(dto1);
+        when(orderMapper.fromOrderToExpertOrderSummaryDto(o2)).thenReturn(dto2);
 
         List<ExpertOrderSummaryDto> result = orderService.getExpertOrderHistory(3L);
         assertEquals(2, result.size());
@@ -91,7 +91,7 @@ class OrderServiceImplTest {
 
         when(repository.findById(66L)).thenReturn(Optional.of(order));
         ExpertOrderDetailDto dto = mock(ExpertOrderDetailDto.class);
-        when(orderMapper.toDetailDto(order)).thenReturn(dto);
+        when(orderMapper.fromOrderToExpertOrderDetailDto(order)).thenReturn(dto);
 
         ExpertOrderDetailDto result = orderService.getExpertOrderDetail(66L, 4L);
         assertEquals(dto, result);

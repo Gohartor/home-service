@@ -4,6 +4,9 @@ import org.example.dto.expert.ExpertOrderDetailDto;
 import org.example.dto.expert.ExpertOrderSummaryDto;
 
 import org.example.dto.order.CreateOrderByCustomerDto;
+import org.example.dto.order.OrderDetailDto;
+import org.example.dto.order.OrderHistoryFilterDto;
+import org.example.dto.order.OrderSummaryDto;
 import org.example.entity.Order;
 
 import java.util.List;
@@ -30,6 +33,11 @@ public interface OrderService {
     void startOrder(Long orderId);
 
     void finishOrder(Long orderId);
+
+    List<OrderSummaryDto> getOrderSummaryHistoryForAdmin(OrderHistoryFilterDto filter);
+
+    OrderDetailDto getOrderDetailHistoryForAdmin(Long orderId);
+
 
 
 }

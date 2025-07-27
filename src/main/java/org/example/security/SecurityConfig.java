@@ -17,11 +17,9 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     private final CustomUserDetailsService users;
-    private final PasswordEncoder passwordEncoder;
 
-    public SecurityConfig(CustomUserDetailsService users, PasswordEncoder passwordEncoder) {
+    public SecurityConfig(CustomUserDetailsService users) {
         this.users = users;
-        this.passwordEncoder = passwordEncoder;
     }
 
     @Bean

@@ -4,24 +4,30 @@ import lombok.RequiredArgsConstructor;
 import org.example.dto.expert.ExpertOrderDetailDto;
 import org.example.dto.expert.ExpertOrderSummaryDto;
 import org.example.dto.order.CreateOrderByCustomerDto;
-import org.example.dto.order.OrderMapper;
+import org.example.dto.order.OrderDetailDto;
+import org.example.dto.order.OrderHistoryFilterDto;
+import org.example.dto.order.OrderSummaryDto;
 import org.example.entity.Order;
 import org.example.entity.Proposal;
 import org.example.entity.Service;
 import org.example.entity.User;
 import org.example.entity.enumerator.OrderStatus;
 import org.example.exception.BusinessException;
+import org.example.exception.OrderNotFoundException;
+import org.example.mapper.OrderMapper;
 import org.example.repository.OrderRepository;
 import org.example.service.OrderService;
 import org.example.service.ProposalService;
 import org.example.service.ServiceService;
 import org.example.service.UserService;
 
+import org.example.specification.OrderSpecification;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.transaction.annotation.Transactional;
 import org.webjars.NotFoundException;
 
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -80,7 +86,7 @@ public class OrderServiceImpl implements OrderService {
     public List<ExpertOrderSummaryDto> getExpertOrderHistory(Long expertId) {
         List<Order> orders = repository.findAllByExpertIdOrderByCreateDateDesc(expertId);
         return orders.stream()
-                .map(orderMapper::toSummaryDto)
+                .map(orderMapper::fromOrderToExpertOrderSummaryDto)
                 .toList();
     }
 
@@ -90,7 +96,7 @@ public class OrderServiceImpl implements OrderService {
                 .orElseThrow(() -> new NoSuchElementException("Order not found"));
         if (order.getExpert() == null || !order.getExpert().getId().equals(expertId))
             throw new AccessDeniedException("You are not allowed to view this order");
-        return orderMapper.toDetailDto(order);
+        return orderMapper.fromOrderToExpertOrderDetailDto(order);
     }
 
 
@@ -195,4 +201,27 @@ public class OrderServiceImpl implements OrderService {
     }
 
 
+//    @Override
+//    public List<OrderSummaryDto> getOrderSummaryHistoryForAdmin(OrderHistoryFilterDto filter) {
+//        Specification<Order> spec = OrderSpecification.filter(filter);
+//        List<Order> orders = repository.findAll(spec, Sort.by(Sort.Direction.DESC, "createdAt"));
+//        return orders.stream().map(orderMapper::fromOrderToAdminOrderSummaryDto).toList();
+//    }
+
+    @Override
+    public List<OrderSummaryDto> getOrderSummaryHistoryForAdmin(OrderHistoryFilterDto filter) {
+        Specification<Order> spec = OrderSpecification.filter(filter);
+        List<Order> orders = repository.findAll(spec, Sort.by(Sort.Direction.DESC, "createDate"));
+        return orderMapper.fromOrderListToAdminOrderSummaryDtoList(orders);
+    }
+
+
+
+    @Override
+    public OrderDetailDto getOrderDetailHistoryForAdmin(Long orderId) {
+        Order order = repository.findById(orderId)
+                .orElseThrow(() -> new OrderNotFoundException("Order not found: " + orderId));
+
+        return orderMapper.fromOrderToAdminOrderDetailDto(order);
+    }
 }

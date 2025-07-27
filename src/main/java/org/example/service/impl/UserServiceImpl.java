@@ -2,12 +2,12 @@ package org.example.service.impl;
 
 
 import jakarta.persistence.criteria.Predicate;
-import lombok.RequiredArgsConstructor;
 import org.example.dto.admin.UserSearchFilterDto;
 import org.example.dto.customer.CustomerLoginDto;
 import org.example.dto.customer.CustomerRegisterDto;
 import org.example.dto.customer.CustomerUpdateProfileDto;
 import org.example.dto.expert.*;
+import org.example.entity.EmailVerificationToken;
 import org.example.entity.Service;
 import org.example.entity.User;
 import org.example.entity.enumerator.ExpertStatus;
@@ -16,6 +16,7 @@ import org.example.exception.DuplicateResourceException;
 import org.example.mapper.ServiceMapper;
 import org.example.mapper.UserMapper;
 import org.example.repository.UserRepository;
+import org.example.service.EmailVerificationTokenService;
 import org.example.service.OrderService;
 import org.example.service.ServiceService;
 import org.example.service.UserService;
@@ -33,6 +34,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -48,14 +50,26 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
     private final ServiceMapper serviceMapper;
+    private final EmailService emailService;
+    private final EmailVerificationTokenService emailVerificationTokenService;
 
-    public UserServiceImpl(UserRepository repository, ServiceService serviceService, @Lazy OrderService orderService, UserMapper userMapper, PasswordEncoder passwordEncoder, ServiceMapper serviceMapper) {
+
+    public UserServiceImpl(UserRepository repository,
+                           ServiceService serviceService,
+                           @Lazy OrderService orderService,
+                           UserMapper userMapper,
+                           PasswordEncoder passwordEncoder,
+                           ServiceMapper serviceMapper,
+                           EmailService emailService,
+                           EmailVerificationTokenService emailVerificationTokenService) {
         this.repository = repository;
         this.serviceService = serviceService;
         this.orderService = orderService;
         this.userMapper = userMapper;
         this.passwordEncoder = passwordEncoder;
         this.serviceMapper = serviceMapper;
+        this.emailService = emailService;
+        this.emailVerificationTokenService = emailVerificationTokenService;
     }
 
 
@@ -309,6 +323,48 @@ public class UserServiceImpl implements UserService {
         repository.save(expert);
 
         return userMapper.mapToProfileDto(expert);
+    }
+
+
+
+
+
+
+    @Override
+    public void sendEmailVerificationLink(User user) {
+        String token = UUID.randomUUID().toString();
+
+        EmailVerificationToken emailVerificationToken = new EmailVerificationToken();
+        emailVerificationToken.setToken(token);
+        emailVerificationToken.setUser(user);
+        emailVerificationToken.setExpiresAt(ZonedDateTime.now().plusHours(24));
+        emailVerificationToken.setIsUsed(false);
+        emailVerificationTokenService.save(verificationToken);
+
+        String link = "https://yourdomain.com/api/users/verify-email?token=" + token;
+
+        emailService.send(
+                user.getEmail(),
+                "فعال‌سازی ایمیل",
+                "روی این لینک کلیک کنید: " + link
+        );
+    }
+
+    @Override
+    @Transactional
+    public void verifyEmail(String token) {
+        EmailVerificationToken verificationToken = emailVerificationTokenService.findByToken(token)
+                .orElseThrow(() -> new RuntimeException("توکن معتبر نیست!"));
+
+        if (verificationToken.isIsUsed() || verificationToken.getExpiresAt().isBefore(ZonedDateTime.now())) {
+            throw new RuntimeException("توکن منقضی یا قبلا مصرف شده است!");
+        }
+
+        verificationToken.setIsUsed(true);
+        User user = verificationToken.getUser();
+        user.setEmailVerified(true);
+        repository.save(user);
+        emailVerificationTokenService.save(verificationToken);
     }
 
 }

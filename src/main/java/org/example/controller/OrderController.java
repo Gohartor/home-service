@@ -1,8 +1,12 @@
 package org.example.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.expert.ExpertOrderDetailDto;
 import org.example.dto.expert.ExpertOrderSummaryDto;
+import org.example.dto.order.OrderDetailDto;
+import org.example.dto.order.OrderHistoryFilterDto;
+import org.example.dto.order.OrderSummaryDto;
 import org.example.entity.User;
 import org.example.service.OrderService;
 import org.springframework.http.ResponseEntity;
@@ -76,5 +80,18 @@ public class OrderController {
         return ResponseEntity.ok("success finish order");
     }
 
+    @PostMapping("/history-summary")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<OrderSummaryDto>> getOrderHistory(@Valid @RequestBody OrderHistoryFilterDto orderHistoryFilterDto) {
+        return ResponseEntity.ok(orderService.getOrderSummaryHistoryForAdmin(orderHistoryFilterDto));
+    }
+
+
+    @GetMapping("/detail/{orderId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<OrderDetailDto> getOrderDetail(@PathVariable Long orderId) {
+        OrderDetailDto dto = orderService.getOrderDetailHistoryForAdmin(orderId);
+        return ResponseEntity.ok(dto);
+    }
 
 }
