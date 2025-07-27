@@ -14,6 +14,8 @@ import java.util.Optional;
 
 public interface UserService {
 
+    Optional<User> findByEmail(String email);
+
     Optional<User> findById(Long id);
 
     List<ExpertResponseDto> listPendingExperts();
@@ -47,5 +49,6 @@ public interface UserService {
     void sendEmailVerificationLink(User user);
 
     void verifyEmail(String token);
+
 
 }

@@ -16,7 +16,6 @@ public interface UserRepository extends BaseRepository<User, Long> {
 
     Optional<User> findByEmail(String email);
 
-
     List<User> findByRoleAndExpertStatus(RoleType role, ExpertStatus expertStatus);
 
     Optional<User> findByIdAndRole(Long id, RoleType role);
