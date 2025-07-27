@@ -337,30 +337,32 @@ public class UserServiceImpl implements UserService {
         EmailVerificationToken emailVerificationToken = new EmailVerificationToken();
         emailVerificationToken.setToken(token);
         emailVerificationToken.setUser(user);
-        emailVerificationToken.setExpiresAt(ZonedDateTime.now().plusHours(24));
-        emailVerificationToken.setIsUsed(false);
-        emailVerificationTokenService.save(verificationToken);
+        emailVerificationToken.setExpiresAt(ZonedDateTime.now().plusMinutes(5));
+        emailVerificationToken.setUsed(false);
+        emailVerificationTokenService.save(emailVerificationToken);
 
         String link = "https://yourdomain.com/api/users/verify-email?token=" + token;
 
         emailService.send(
                 user.getEmail(),
-                "فعال‌سازی ایمیل",
-                "روی این لینک کلیک کنید: " + link
+                "verification link",
+                "click on link" + link
         );
     }
+
 
     @Override
     @Transactional
     public void verifyEmail(String token) {
-        EmailVerificationToken verificationToken = emailVerificationTokenService.findByToken(token)
-                .orElseThrow(() -> new RuntimeException("توکن معتبر نیست!"));
 
-        if (verificationToken.isIsUsed() || verificationToken.getExpiresAt().isBefore(ZonedDateTime.now())) {
-            throw new RuntimeException("توکن منقضی یا قبلا مصرف شده است!");
+        EmailVerificationToken verificationToken = emailVerificationTokenService.findByToken(token)
+                .orElseThrow(() -> new RuntimeException("invalid token"));
+
+        if (verificationToken.isUsed() || verificationToken.getExpiresAt().isBefore(ZonedDateTime.now())) {
+            throw new RuntimeException("token expired");
         }
 
-        verificationToken.setIsUsed(true);
+        verificationToken.setUsed(true);
         User user = verificationToken.getUser();
         user.setEmailVerified(true);
         repository.save(user);

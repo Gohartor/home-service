@@ -1,5 +1,6 @@
 package org.example.service;
 
+import org.example.entity.EmailVerificationToken;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -7,5 +8,9 @@ import java.util.Optional;
 @Service
 public interface EmailVerificationTokenService {
 
-    Optional<Object> findByToken(String token);
+
+    Optional<EmailVerificationToken> findByToken(String token);
+
+    EmailVerificationToken save(EmailVerificationToken entity);
+
 }

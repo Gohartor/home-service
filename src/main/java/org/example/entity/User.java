@@ -41,6 +41,9 @@ public class User extends BaseEntity {
 
     private Double score;
 
+    @Column(nullable = false)
+    private boolean isEmailVerified;
+
     @ManyToMany
     @JoinTable(
             name = "user_services",

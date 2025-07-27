@@ -10,8 +10,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class EmailService {
 
-    @a
+
     private final JavaMailSender mailSender;
+
 
     public void send(String to, String subject, String text) {
         SimpleMailMessage message = new SimpleMailMessage();

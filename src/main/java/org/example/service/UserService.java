@@ -44,7 +44,8 @@ public interface UserService {
 
     ExpertProfileDto registerExpert(ExpertRegisterDto dto, MultipartFile profilePhoto);
 
+    void sendEmailVerificationLink(User user);
 
-
+    void verifyEmail(String token);
 
 }
