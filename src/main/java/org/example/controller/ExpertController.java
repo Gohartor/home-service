@@ -85,7 +85,6 @@ public class ExpertController {
     @GetMapping("/verify-email")
     public ResponseEntity<String> verifyEmail(@RequestParam("token") String token) {
         userService.verifyEmail(token);
-
         return ResponseEntity.ok("success verify email");
     }
 

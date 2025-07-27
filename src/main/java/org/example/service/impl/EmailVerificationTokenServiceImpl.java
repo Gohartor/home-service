@@ -2,10 +2,12 @@ package org.example.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.example.entity.EmailVerificationToken;
+import org.example.entity.User;
 import org.example.repository.EmailVerificationTokenRepository;
 import org.example.service.EmailVerificationTokenService;
 import org.springframework.stereotype.Service;
 
+import java.time.ZonedDateTime;
 import java.util.Optional;
 
 @Service
@@ -23,5 +25,15 @@ public class EmailVerificationTokenServiceImpl implements EmailVerificationToken
     @Override
     public EmailVerificationToken save(EmailVerificationToken entity) {
         return repository.save(entity);
+    }
+
+    @Override
+    public Optional<EmailVerificationToken> findByUserAndIsUsedFalseAndExpiresAtAfter(User user, ZonedDateTime now) {
+        return repository.findByUserAndIsUsedFalseAndExpiresAtAfter(user, now);
+    }
+
+    @Override
+    public void deleteByUserAndIsUsedFalseAndExpiresAtAfter(User user, ZonedDateTime now) {
+        repository.deleteByUserAndIsUsedFalseAndExpiresAtAfter(user, now);
     }
 }

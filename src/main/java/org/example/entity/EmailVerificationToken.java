@@ -18,7 +18,7 @@ public class EmailVerificationToken extends BaseEntity {
 
     private String token;
 
-    @OneToOne
+    @ManyToOne
     private User user;
 
     private ZonedDateTime expiresAt;

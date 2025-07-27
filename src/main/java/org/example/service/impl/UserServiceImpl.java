@@ -337,23 +337,24 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void sendEmailVerificationLink(User user) {
+        emailVerificationTokenService.deleteByUserAndIsUsedFalseAndExpiresAtAfter(user, ZonedDateTime.now());
         String token = UUID.randomUUID().toString();
-
         EmailVerificationToken emailVerificationToken = new EmailVerificationToken();
         emailVerificationToken.setToken(token);
         emailVerificationToken.setUser(user);
-        emailVerificationToken.setExpiresAt(ZonedDateTime.now().plusMinutes(5));
+        emailVerificationToken.setExpiresAt(ZonedDateTime.now().plusMinutes(1)); // مثل خواست خودت
         emailVerificationToken.setUsed(false);
         emailVerificationTokenService.save(emailVerificationToken);
 
-        String link = "https://yourdomain.com/api/users/verify-email?token=" + token;
+        String link = "http://localhost:8080/experts/verify-email?token=" + token;
 
         emailService.send(
                 user.getEmail(),
-                "verification link",
-                "click on link" + link
+                "Verify your email ->Home Service App<-",
+                "click on this link:\n" + link
         );
     }
+
 
 
     @Override
@@ -373,5 +374,6 @@ public class UserServiceImpl implements UserService {
         repository.save(user);
         emailVerificationTokenService.save(verificationToken);
     }
+
 
 }
