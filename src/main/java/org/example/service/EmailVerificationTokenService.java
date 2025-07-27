@@ -19,4 +19,10 @@ public interface EmailVerificationTokenService {
 
     void deleteByUserAndIsUsedFalseAndExpiresAtAfter(User user, ZonedDateTime now);
 
+    void sendEmailVerificationLink(User user);
+
+    void verifyEmail(String token);
+
+    void deleteByUser(User user);
+
 }

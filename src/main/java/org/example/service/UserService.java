@@ -20,6 +20,8 @@ public interface UserService {
 
     Optional<User> findById(Long id);
 
+    User save(User user);
+
     List<ExpertResponseDto> listPendingExperts();
 
     void approveExpert(Long expertId);
@@ -48,9 +50,6 @@ public interface UserService {
 
     ExpertProfileDto registerExpert(ExpertRegisterDto dto, MultipartFile profilePhoto);
 
-    void sendEmailVerificationLink(User user);
-
-    void verifyEmail(String token);
 
 
 }

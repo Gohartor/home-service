@@ -61,7 +61,7 @@ public class UserServiceImpl implements UserService {
                            PasswordEncoder passwordEncoder,
                            ServiceMapper serviceMapper,
                            EmailService emailService,
-                           EmailVerificationTokenService emailVerificationTokenService) {
+                           @Lazy EmailVerificationTokenService emailVerificationTokenService) {
         this.repository = repository;
         this.serviceService = serviceService;
         this.orderService = orderService;
@@ -81,6 +81,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public Optional<User> findById(Long id) {
         return repository.findById(id);
+    }
+
+    @Override
+    public User save(User user) {
+        return repository.save(user);
     }
 
     @Override
@@ -335,45 +340,6 @@ public class UserServiceImpl implements UserService {
 
 
 
-    @Override
-    public void sendEmailVerificationLink(User user) {
-        emailVerificationTokenService.deleteByUserAndIsUsedFalseAndExpiresAtAfter(user, ZonedDateTime.now());
-        String token = UUID.randomUUID().toString();
-        EmailVerificationToken emailVerificationToken = new EmailVerificationToken();
-        emailVerificationToken.setToken(token);
-        emailVerificationToken.setUser(user);
-        emailVerificationToken.setExpiresAt(ZonedDateTime.now().plusMinutes(1)); // مثل خواست خودت
-        emailVerificationToken.setUsed(false);
-        emailVerificationTokenService.save(emailVerificationToken);
-
-        String link = "http://localhost:8080/experts/verify-email?token=" + token;
-
-        emailService.send(
-                user.getEmail(),
-                "Verify your email ->Home Service App<-",
-                "click on this link:\n" + link
-        );
-    }
-
-
-
-    @Override
-    @Transactional
-    public void verifyEmail(String token) {
-
-        EmailVerificationToken verificationToken = emailVerificationTokenService.findByToken(token)
-                .orElseThrow(() -> new RuntimeException("invalid token"));
-
-        if (verificationToken.isUsed() || verificationToken.getExpiresAt().isBefore(ZonedDateTime.now())) {
-            throw new RuntimeException("token expired");
-        }
-
-        verificationToken.setUsed(true);
-        User user = verificationToken.getUser();
-        user.setEmailVerified(true);
-        repository.save(user);
-        emailVerificationTokenService.save(verificationToken);
-    }
 
 
 }

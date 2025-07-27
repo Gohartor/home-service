@@ -77,14 +77,14 @@ public class ExpertController {
     public ResponseEntity<String> sendVerificationEmail(@RequestBody @Valid EmailVerificationRequestDto dto) {
         User user = userService.findByEmail(dto.email())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "user not found with this email"));
-        userService.sendEmailVerificationLink(user);
+        emailVerificationTokenService.sendEmailVerificationLink(user);
         return ResponseEntity.ok("success send email");
     }
 
 
     @GetMapping("/verify-email")
     public ResponseEntity<String> verifyEmail(@RequestParam("token") String token) {
-        userService.verifyEmail(token);
+        emailVerificationTokenService.verifyEmail(token);
         return ResponseEntity.ok("success verify email");
     }
 

@@ -31,7 +31,7 @@ public class SecurityConfig {
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/expert/**").hasRole("EXPERT")
                         .requestMatchers("/customer/**").hasRole("CUSTOMER")
-                        .requestMatchers("/register", "/login", "/verify-email/**").permitAll()
+                        .requestMatchers("/register", "/login", "/experts/verify-email**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .userDetailsService(users)
