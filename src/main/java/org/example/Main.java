@@ -21,3 +21,10 @@ public class Main {
 // valid status -> count proposal -> status order (check double)
 
 // all Customer operation
+
+
+
+//phase4
+//manage authorize preauthorize
+//change JWT
+//change register after email verify, upload image

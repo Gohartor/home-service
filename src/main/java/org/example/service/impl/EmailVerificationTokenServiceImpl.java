@@ -45,6 +45,7 @@ public class EmailVerificationTokenServiceImpl implements EmailVerificationToken
 
 
 
+    //TODO user check email verify
     @Override
     @Transactional
     public void sendEmailVerificationLink(User user) {
@@ -75,6 +76,7 @@ public class EmailVerificationTokenServiceImpl implements EmailVerificationToken
 
 
 
+    //TODO check user verify
     @Override
     @Transactional
     public void verifyEmail(String token) {

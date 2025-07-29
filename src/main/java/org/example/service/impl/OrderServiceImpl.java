@@ -2,6 +2,7 @@ package org.example.service.impl;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.dto.expert.ExpertOrderDetailDto;
 import org.example.dto.expert.ExpertOrderSummaryDto;
 import org.example.dto.order.CreateOrderByCustomerDto;
@@ -37,6 +38,7 @@ import java.util.Optional;
 
 @org.springframework.stereotype.Service
 @RequiredArgsConstructor
+@Slf4j
 public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository repository;
@@ -229,6 +231,7 @@ public class OrderServiceImpl implements OrderService {
 
 
 
+
     @Override
     public List<OrderSummaryDto> getFilteredOrders(OrderHistoryFilterDto filter) {
         OrderHistoryFilterDto securedFilter = new OrderHistoryFilterDto(
@@ -239,8 +242,10 @@ public class OrderServiceImpl implements OrderService {
                 filter.expertId(),
                 SecurityUtil.getCurrentUserId()
         );
-        System.out.println("Filter values: " + securedFilter);
-        System.out.println("customerId: " + filter.customerId());
+//        System.out.println("Filter values: " + securedFilter);
+//        System.out.println("customerId: " + filter.customerId());
+
+//        log.debug("getFilteredOrders " + securedFilter);
 
         Specification<Order> spec = OrderSpecification.filter(securedFilter);
         List<Order> orders = repository.findAll(spec, Sort.by(Sort.Direction.DESC, "createDate"));

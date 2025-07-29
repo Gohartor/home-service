@@ -24,8 +24,8 @@ public class OrderSpecification {
                 predicates.add(
                         cb.lessThanOrEqualTo(root.get("createDate"), filter.endDate().atTime(23, 59, 59)));
             }
-            System.out.println("filter.status() = " + filter.status());
-            System.out.println("OrderHistoryFilterDto: " + filter);
+//            System.out.println("filter.status() = " + filter.status());
+//            System.out.println("OrderHistoryFilterDto: " + filter);
             if (filter.status() != null && !filter.status().isBlank()) {
                 predicates.add(
                         cb.equal(root.get("status"), OrderStatus.valueOf(filter.status())));

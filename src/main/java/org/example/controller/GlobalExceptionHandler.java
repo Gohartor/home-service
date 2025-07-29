@@ -28,4 +28,6 @@ public class GlobalExceptionHandler {
     public Map<String, String> handleIllegalState(IllegalStateException ex) {
         return Map.of("error", ex.getMessage());
     }
+
+    //TODO for all exception in this class should be handle
 }
