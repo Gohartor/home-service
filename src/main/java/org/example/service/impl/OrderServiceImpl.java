@@ -231,16 +231,16 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public List<OrderSummaryDto> getFilteredOrders(OrderHistoryFilterDto filter) {
-        Long currentUserId = SecurityUtil.getCurrentUserId();
-
         OrderHistoryFilterDto securedFilter = new OrderHistoryFilterDto(
                 filter.startDate(),
                 filter.endDate(),
                 filter.status(),
                 filter.serviceName(),
                 filter.expertId(),
-                currentUserId
+                SecurityUtil.getCurrentUserId()
         );
+        System.out.println("Filter values: " + securedFilter);
+        System.out.println("customerId: " + filter.customerId());
 
         Specification<Order> spec = OrderSpecification.filter(securedFilter);
         List<Order> orders = repository.findAll(spec, Sort.by(Sort.Direction.DESC, "createDate"));

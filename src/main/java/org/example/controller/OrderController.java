@@ -48,7 +48,7 @@ public class OrderController {
     }
 
 
-    @GetMapping("/{orderId}")
+    @GetMapping("/{orderId:\\d+}")
     @PreAuthorize("hasRole('EXPERT')")
     public ResponseEntity<ExpertOrderDetailDto> getOrderDetail(
             @AuthenticationPrincipal User principal,
@@ -87,7 +87,7 @@ public class OrderController {
     }
 
 
-    @GetMapping("/detail/{orderId}")
+    @GetMapping("/detail-for-admin/{orderId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<OrderDetailDto> getOrderDetail(@PathVariable Long orderId) {
         OrderDetailDto dto = orderService.getOrderDetailHistoryForAdmin(orderId);
@@ -95,12 +95,15 @@ public class OrderController {
     }
 
 
-    @GetMapping("/history-for-customer")
-    public List<OrderSummaryDto> getOrderHistoryForCustomer(OrderHistoryFilterDto filter) {
-        return orderService.getFilteredOrders(filter);
+    @PostMapping("/history-for-customer")
+    @PreAuthorize("hasRole('CUSTOMER')")
+    public ResponseEntity<List<OrderSummaryDto>> getOrderHistoryForCustomer(@Valid @RequestBody OrderHistoryFilterDto filter) {
+        return ResponseEntity.ok(orderService.getFilteredOrders(filter));
     }
 
-    @GetMapping("/detail/{orderId}")
+
+    @GetMapping("/detail-for-customer/{orderId}")
+    @PreAuthorize("hasRole('CUSTOMER')")
     public OrderDetailDto getOrderDetailForCustomer(@PathVariable Long orderId) {
         return orderService.getOrderDetail(orderId);
     }
