@@ -94,4 +94,14 @@ public class OrderController {
         return ResponseEntity.ok(dto);
     }
 
+
+    @GetMapping("/history-for-customer")
+    public List<OrderSummaryDto> getOrderHistoryForCustomer(OrderHistoryFilterDto filter) {
+        return orderService.getFilteredOrders(filter);
+    }
+
+    @GetMapping("/detail/{orderId}")
+    public OrderDetailDto getOrderDetailForCustomer(@PathVariable Long orderId) {
+        return orderService.getOrderDetail(orderId);
+    }
 }

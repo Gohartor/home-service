@@ -1,5 +1,6 @@
 package org.example.service.impl;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.expert.ExpertOrderDetailDto;
 import org.example.dto.expert.ExpertOrderSummaryDto;
@@ -16,6 +17,7 @@ import org.example.exception.BusinessException;
 import org.example.exception.OrderNotFoundException;
 import org.example.mapper.OrderMapper;
 import org.example.repository.OrderRepository;
+import org.example.security.SecurityUtil;
 import org.example.service.OrderService;
 import org.example.service.ProposalService;
 import org.example.service.ServiceService;
@@ -212,7 +214,7 @@ public class OrderServiceImpl implements OrderService {
     public List<OrderSummaryDto> getOrderSummaryHistoryForAdmin(OrderHistoryFilterDto filter) {
         Specification<Order> spec = OrderSpecification.filter(filter);
         List<Order> orders = repository.findAll(spec, Sort.by(Sort.Direction.DESC, "createDate"));
-        return orderMapper.fromOrderListToAdminOrderSummaryDtoList(orders);
+        return orderMapper.fromOrderListToOrderSummaryDtoList(orders);
     }
 
 
@@ -222,6 +224,43 @@ public class OrderServiceImpl implements OrderService {
         Order order = repository.findById(orderId)
                 .orElseThrow(() -> new OrderNotFoundException("Order not found: " + orderId));
 
-        return orderMapper.fromOrderToAdminOrderDetailDto(order);
+        return orderMapper.fromOrderToOrderDetailDto(order);
     }
+
+
+
+    @Override
+    public List<OrderSummaryDto> getFilteredOrders(OrderHistoryFilterDto filter) {
+        Long currentUserId = SecurityUtil.getCurrentUserId();
+
+        OrderHistoryFilterDto securedFilter = new OrderHistoryFilterDto(
+                filter.startDate(),
+                filter.endDate(),
+                filter.status(),
+                filter.serviceName(),
+                filter.expertId(),
+                currentUserId
+        );
+
+        Specification<Order> spec = OrderSpecification.filter(securedFilter);
+        List<Order> orders = repository.findAll(spec, Sort.by(Sort.Direction.DESC, "createDate"));
+        return orderMapper.fromOrderListToOrderSummaryDtoList(orders);
+    }
+
+
+    @Override
+    public OrderDetailDto getOrderDetail(Long orderId) {
+        Order order = repository.findById(orderId)
+                .orElseThrow(() -> new EntityNotFoundException("Order not found: " + orderId));
+
+        Long currentUserId = SecurityUtil.getCurrentUserId();
+        if (!order.getCustomer().getId().equals(currentUserId)) {
+            throw new AccessDeniedException("شما دسترسی به این سفارش را ندارید!");
+        }
+
+        return orderMapper.fromOrderToOrderDetailDto(order);
+    }
+
+
+
 }

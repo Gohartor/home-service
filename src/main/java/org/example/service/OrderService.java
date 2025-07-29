@@ -38,6 +38,10 @@ public interface OrderService {
 
     OrderDetailDto getOrderDetailHistoryForAdmin(Long orderId);
 
+    List<OrderSummaryDto> getFilteredOrders(OrderHistoryFilterDto filter);
+
+    OrderDetailDto getOrderDetail(Long orderId);
+
 
 
 }

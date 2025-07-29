@@ -19,4 +19,6 @@ public interface OrderRepository
     List<Order> findAllByExpertIdOrderByCreateDateDesc(Long expertId);
 
     List<Order> findAll(Specification<Order> spec, Sort createdAt);
+
+    List<Order> findByCustomer_Email(String email);
 }

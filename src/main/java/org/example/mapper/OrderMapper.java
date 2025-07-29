@@ -36,15 +36,19 @@ public interface OrderMapper {
     @Mapping(target = "status", expression = "java(order.getStatus().name())")
     @Mapping(target = "expertFullName", expression = "java(getFullName(order.getExpert()))")
     @Mapping(target = "customerFullName", expression = "java(getFullName(order.getCustomer()))")
-    OrderSummaryDto fromOrderToAdminOrderSummaryDto(Order order);
+    OrderSummaryDto fromOrderToOrderSummaryDto(Order order);
 
     @Mapping(target = "serviceName", source = "service.name")
     @Mapping(target = "status", expression = "java(order.getStatus().name())")
     @Mapping(target = "expertFullName", expression = "java(getFullName(order.getExpert()))")
     @Mapping(target = "customerFullName", expression = "java(getFullName(order.getCustomer()))")
-    OrderDetailDto fromOrderToAdminOrderDetailDto(Order order);
+    OrderDetailDto fromOrderToOrderDetailDto(Order order);
 
-    List<OrderSummaryDto> fromOrderListToAdminOrderSummaryDtoList(List<Order> orders);
+    List<OrderSummaryDto> fromOrderListToOrderSummaryDtoList(List<Order> orders);
+
+
+
+
 
     default String getFullName(org.example.entity.User user) {
         if (user == null) return null;
