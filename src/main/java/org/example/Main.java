@@ -28,3 +28,22 @@ public class Main {
 //manage authorize preauthorize
 //change JWT
 //change register after email verify, upload image
+//email just one send (find verify account)
+//exception handler
+// unit test
+
+
+// branch master & dev (dev for coding)
+
+
+//phase-3
+// filter & search for admin
+// upload image error
+// separated upload
+
+// history order expert -> pagination
+// rate to order (disable account - negative rate)
+
+// payment link (captcha - timer backend)
+
+//unit test
