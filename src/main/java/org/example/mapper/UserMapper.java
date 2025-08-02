@@ -4,10 +4,7 @@ import org.example.dto.admin.UserAdminListDto;
 import org.example.dto.admin.UserSearchFilterDto;
 import org.example.dto.customer.CustomerRegisterDto;
 import org.example.dto.customer.CustomerUpdateProfileDto;
-import org.example.dto.expert.ExpertProfileDto;
-import org.example.dto.expert.ExpertRegisterDto;
-import org.example.dto.expert.ExpertResponseDto;
-import org.example.dto.expert.ExpertUpdateProfileDto;
+import org.example.dto.expert.*;
 import org.example.entity.User;
 import org.mapstruct.*;
 
@@ -41,6 +38,9 @@ public interface UserMapper {
 
 
     ExpertProfileDto mapToProfileDto(User expert);
+
+
+    ExpertLoginResponseDto fromEntityToExpertLoginResponseDto(User expert);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "profilePhoto", ignore = true)

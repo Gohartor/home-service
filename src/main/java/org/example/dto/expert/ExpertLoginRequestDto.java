@@ -3,7 +3,7 @@ package org.example.dto.expert;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
-public record ExpertLoginDto(
+public record ExpertLoginRequestDto(
         @Email(message = "Invalid email address")
         @NotBlank(message = "Email is required")
         String email,

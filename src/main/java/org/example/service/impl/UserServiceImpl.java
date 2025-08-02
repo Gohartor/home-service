@@ -7,7 +7,6 @@ import org.example.dto.customer.CustomerLoginDto;
 import org.example.dto.customer.CustomerRegisterDto;
 import org.example.dto.customer.CustomerUpdateProfileDto;
 import org.example.dto.expert.*;
-import org.example.entity.EmailVerificationToken;
 import org.example.entity.Service;
 import org.example.entity.User;
 import org.example.entity.enumerator.ExpertStatus;
@@ -26,7 +25,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.webjars.NotFoundException;
 
@@ -34,11 +32,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 
 @org.springframework.stereotype.Service
@@ -189,7 +185,7 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public User loginExpert(ExpertLoginDto dto) {
+    public ExpertLoginResponseDto loginExpert(ExpertLoginRequestDto dto) {
 
         User expert = repository.findByEmail(dto.email())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid email or password."));
@@ -202,7 +198,8 @@ public class UserServiceImpl implements UserService {
         if (!passwordEncoder.matches(dto.password(), expert.getPassword()))
             throw new IllegalArgumentException("Invalid email or password.");
 
-        return expert;
+
+        return userMapper.fromEntityToExpertLoginResponseDto(expert);
     }
 
     @Override

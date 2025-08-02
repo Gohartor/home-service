@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.expert.ExpertOrderDetailDto;
 import org.example.dto.expert.ExpertOrderSummaryDto;
+import org.example.dto.order.CreateOrderByCustomerDto;
 import org.example.dto.order.OrderDetailDto;
 import org.example.dto.order.OrderHistoryFilterDto;
 import org.example.dto.order.OrderSummaryDto;
@@ -29,14 +30,12 @@ public class OrderController {
         return "hello from backend!";
     }
 
-
-//    @GetMapping("/history")
-//    @PreAuthorize("hasRole('EXPERT')")
-//    public ResponseEntity<List<ExpertOrderSummaryDto>> getOrderHistory(@AuthenticationPrincipal User principal) {
-//        List<ExpertOrderSummaryDto> dtos =
-//                orderService.getExpertOrderHistory(principal.getId());
-//        return ResponseEntity.ok(dtos);
-//    }
+    //TODO change this to orderController -----> DONE
+    @PostMapping("/create-order")
+    public ResponseEntity<?> createOrderByCustomer(@RequestBody CreateOrderByCustomerDto dto) {
+        orderService.createOrderByCustomer(dto);
+        return ResponseEntity.ok("Order created successfully.");
+    }
 
     @GetMapping("/history")
     public ResponseEntity<List<ExpertOrderSummaryDto>> getOrderHistory(

@@ -5,12 +5,10 @@ import org.example.dto.customer.CustomerLoginDto;
 import org.example.dto.customer.CustomerRegisterDto;
 import org.example.dto.customer.CustomerUpdateProfileDto;
 import org.example.dto.expert.*;
-import org.example.entity.EmailVerificationToken;
 import org.example.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,7 +36,7 @@ public interface UserService {
 
     void registerCustomer(CustomerRegisterDto dto);
 
-    User loginExpert(ExpertLoginDto dto);
+    ExpertLoginResponseDto loginExpert(ExpertLoginRequestDto dto);
 
     void loginCustomer(CustomerLoginDto dto);
 

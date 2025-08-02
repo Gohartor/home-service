@@ -1,12 +1,10 @@
 package org.example.controller;
 
+import jakarta.annotation.security.PermitAll;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.emailVerification.EmailVerificationRequestDto;
-import org.example.dto.expert.ExpertLoginDto;
-import org.example.dto.expert.ExpertProfileDto;
-import org.example.dto.expert.ExpertRegisterDto;
-import org.example.dto.expert.ExpertUpdateProfileDto;
+import org.example.dto.expert.*;
 import org.example.dto.proposal.ProposalCreateByExpertDto;
 import org.example.entity.User;
 import org.example.mapper.UserMapper;
@@ -15,6 +13,7 @@ import org.example.service.ProposalService;
 import org.example.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
@@ -27,7 +26,6 @@ public class ExpertController {
 
     private final UserService userService;
     private final ProposalService proposalService;
-    private final UserMapper userMapper;
     private final EmailVerificationTokenService emailVerificationTokenService;
 
 
@@ -47,11 +45,11 @@ public class ExpertController {
     }
 
 
-    //TODO pass remove from response (entity to dto)
+    //TODO pass remove from response (entity to dto) -----> DONE
     @PostMapping("/login")
-    public ResponseEntity<User> login(@RequestBody @Valid ExpertLoginDto dto) {
-        User expert = userService.loginExpert(dto);
-        return ResponseEntity.ok(expert);
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<ExpertLoginResponseDto> login(@RequestBody @Valid ExpertLoginRequestDto dto) {
+        return ResponseEntity.ok(userService.loginExpert(dto));
     }
 
 

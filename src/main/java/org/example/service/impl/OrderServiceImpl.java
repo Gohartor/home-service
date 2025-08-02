@@ -131,7 +131,7 @@ public class OrderServiceImpl implements OrderService {
         order.setCustomer(customer);
 
         order.setDescription(dto.description());
-        order.setOfferedPrice((double) dto.offeredPrice());
+        order.setOfferedPrice(dto.offeredPrice());
         order.setAddress(dto.address());
         order.setExpectedDoneAt(dto.expectedDoneAt());
         order.setStatus(OrderStatus.PENDING_PROPOSAL);

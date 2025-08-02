@@ -29,7 +29,7 @@ public class Main {
 //change JWT
 //change register after email verify, upload image
 //email just one send (find verify account)
-//exception handler
+//exception handler -----> DONE
 // unit test
 
 
@@ -40,10 +40,6 @@ public class Main {
 // filter & search for admin
 // upload image error
 // separated upload
-
 // history order expert -> pagination
 // rate to order (disable account - negative rate)
-
 // payment link (captcha - timer backend)
-
-//unit test

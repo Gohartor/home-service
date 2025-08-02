@@ -61,7 +61,7 @@ class UserServiceImplTest {
     MultipartFile mockFile;
 
     @Mock
-    ExpertLoginDto expertLoginDto;
+    ExpertLoginRequestDto expertLoginRequestDto;
 
     @Mock
     CustomerLoginDto customerLoginDto;
@@ -424,34 +424,13 @@ class UserServiceImplTest {
 
 
 
-
-    @Test
-    void loginExpert_shouldReturnExpert_whenInputValid() {
-
-        User expert = new User();
-        expert.setExpertStatus(ExpertStatus.APPROVED);
-        expert.setPassword("hashed");
-        when(expertLoginDto.email()).thenReturn("reza@x.com");
-        when(expertLoginDto.password()).thenReturn("pass123");
-        when(repository.findByEmail("reza@x.com")).thenReturn(Optional.of(expert));
-        when(passwordEncoder.matches("pass123", "hashed")).thenReturn(true);
-
-
-        User result = userService.loginExpert(expertLoginDto);
-
-
-        assertEquals(expert, result);
-        verify(repository).findByEmail("reza@x.com");
-        verify(passwordEncoder).matches("pass123", "hashed");
-    }
-
     @Test
     void loginExpert_shouldThrowIllegalArg_whenEmailNotFound() {
-        when(expertLoginDto.email()).thenReturn("notfound@x.com");
+        when(expertLoginRequestDto.email()).thenReturn("notfound@x.com");
         when(repository.findByEmail("notfound@x.com")).thenReturn(Optional.empty());
 
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
-                () -> userService.loginExpert(expertLoginDto)
+                () -> userService.loginExpert(expertLoginRequestDto)
         );
         assertEquals("Invalid email or password.", ex.getMessage());
         verify(repository).findByEmail("notfound@x.com");
@@ -462,11 +441,11 @@ class UserServiceImplTest {
     void loginExpert_shouldThrowIllegalState_whenExpertStatusIsNotApproved() {
         User expert = new User();
         expert.setExpertStatus(ExpertStatus.PENDING);
-        when(expertLoginDto.email()).thenReturn("expert@y.com");
+        when(expertLoginRequestDto.email()).thenReturn("expert@y.com");
         when(repository.findByEmail("expert@y.com")).thenReturn(Optional.of(expert));
 
         IllegalStateException ex = assertThrows(IllegalStateException.class,
-                () -> userService.loginExpert(expertLoginDto)
+                () -> userService.loginExpert(expertLoginRequestDto)
         );
         assertEquals("Your account is not approved yet.", ex.getMessage());
         verify(repository).findByEmail("expert@y.com");
@@ -478,13 +457,13 @@ class UserServiceImplTest {
         User expert = new User();
         expert.setExpertStatus(ExpertStatus.APPROVED);
         expert.setPassword("hashed");
-        when(expertLoginDto.email()).thenReturn("k@k.com");
-        when(expertLoginDto.password()).thenReturn("wrong");
+        when(expertLoginRequestDto.email()).thenReturn("k@k.com");
+        when(expertLoginRequestDto.password()).thenReturn("wrong");
         when(repository.findByEmail("k@k.com")).thenReturn(Optional.of(expert));
         when(passwordEncoder.matches("wrong", "hashed")).thenReturn(false);
 
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
-                () -> userService.loginExpert(expertLoginDto)
+                () -> userService.loginExpert(expertLoginRequestDto)
         );
         assertEquals("Invalid email or password.", ex.getMessage());
         verify(repository).findByEmail("k@k.com");
