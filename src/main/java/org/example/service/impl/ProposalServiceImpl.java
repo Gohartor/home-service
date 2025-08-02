@@ -62,13 +62,12 @@ public class ProposalServiceImpl implements ProposalService {
         return repository.existsById(id);
     }
 
-    public long countAllByOrder_Id(Long orderId){
+    public long countAllByOrder_Id(Long orderId) {
         return repository.countAllByOrder_Id(orderId);
     }
 
 
-
-    //TODO base price and time future
+    //TODO base price and time future  -----> DONE
     @Override
     @Transactional
     public void submitProposalByExpert(Long expertId, ProposalCreateByExpertDto dto) {
@@ -82,6 +81,14 @@ public class ProposalServiceImpl implements ProposalService {
 
         if (!(order.getStatus() == OrderStatus.PENDING_PROPOSAL || order.getStatus() == OrderStatus.PROPOSAL_SELECTED)) {
             throw new IllegalStateException("Order is not open for proposals.");
+        }
+
+        if (dto.suggestedPrice() < order.getOfferedPrice()) {
+            throw new AccessDeniedException("your price is less than offered price");
+        }
+
+        if (!dto.suggestedStartTime().isBefore(order.getExpectedDoneAt())) {
+            throw new AccessDeniedException("your time is after offered time");
         }
 
         User expert = userService.findById(expertId)
@@ -109,25 +116,41 @@ public class ProposalServiceImpl implements ProposalService {
     }
 
 
-
     //TODO sorting by query in jpa
+
+//    @Override
+//    public List<ProposalViewDto> getOrderProposals(Long orderId, String sortBy) {
+//        List<Proposal> proposals = repository.findByOrderId(orderId);
+//
+//        if ("score".equalsIgnoreCase(sortBy)) {
+//            proposals = proposals.stream()
+//                    .filter(p -> p.getExpert() != null && p.getExpert().getScore() != null)
+//                    .collect(Collectors.toList());
+//            proposals.sort(Comparator.comparing(
+//                    (Proposal p) -> p.getExpert().getScore(),
+//                    Comparator.reverseOrder()
+//            ));
+//        } else {
+//            proposals.sort(Comparator.comparing(Proposal::getProposedPrice));
+//        }
+//        return mapper.toViewDtoList(proposals);
+//    }
+
+
     @Override
     public List<ProposalViewDto> getOrderProposals(Long orderId, String sortBy) {
-        List<Proposal> proposals = repository.findByOrderId(orderId);
+        List<Proposal> proposals;
 
         if ("score".equalsIgnoreCase(sortBy)) {
-            proposals = proposals.stream()
-                    .filter(p -> p.getExpert() != null && p.getExpert().getScore() != null)
-                    .collect(Collectors.toList());
-            proposals.sort(Comparator.comparing(
-                    (Proposal p) -> p.getExpert().getScore(),
-                    Comparator.reverseOrder()
-            ));
+            proposals = repository.findByOrderIdOrderByExpertScoreDesc(orderId);
         } else {
-            proposals.sort(Comparator.comparing(Proposal::getProposedPrice));
+            proposals = repository.findByOrderIdOrderByProposedPriceAsc(orderId);
         }
         return mapper.toViewDtoList(proposals);
     }
+
+
+
 
     @Override
     public Optional<Proposal> findByOrderIdAndIsAcceptedTrue(Long orderId) {
