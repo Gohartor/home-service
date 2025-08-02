@@ -45,7 +45,7 @@ public class EmailVerificationTokenServiceImpl implements EmailVerificationToken
 
 
 
-    //TODO user check email verify
+    //TODO user check email verify -----> DONE
     @Override
     @Transactional
     public void sendEmailVerificationLink(User user) {
@@ -56,6 +56,10 @@ public class EmailVerificationTokenServiceImpl implements EmailVerificationToken
 //
 //        repository.deleteByUserAndIsUsedFalseAndExpiresAtAfter(user, ZonedDateTime.now());
 //        System.out.println("After delete: " + repository.countByUser(user));
+
+        if (!user.isEmailVerified()){
+            throw new RuntimeException("user is not email verified");
+        }
 
         String token = UUID.randomUUID().toString();
         EmailVerificationToken emailVerificationToken = new EmailVerificationToken();
@@ -76,7 +80,7 @@ public class EmailVerificationTokenServiceImpl implements EmailVerificationToken
 
 
 
-    //TODO check user verify
+    //TODO check user verify -----> DONE
     @Override
     @Transactional
     public void verifyEmail(String token) {
@@ -86,8 +90,13 @@ public class EmailVerificationTokenServiceImpl implements EmailVerificationToken
         if (verificationToken.isUsed() || verificationToken.getExpiresAt().isBefore(ZonedDateTime.now()))
             throw new RuntimeException("token expired");
 
+
+
         verificationToken.setUsed(true);
         User user = verificationToken.getUser();
+        if (!user.isEmailVerified()){
+            throw new RuntimeException("user is not email verified");
+        }
         user.setEmailVerified(true);
 
         userService.save(user);
