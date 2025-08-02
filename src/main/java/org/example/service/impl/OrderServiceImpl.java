@@ -105,7 +105,7 @@ public class OrderServiceImpl implements OrderService {
 
 
 
-    //TODO time condition for future
+    //TODO time condition for future  -----> DONE
     public void createOrderByCustomer(CreateOrderByCustomerDto dto) {
 
         User customer = userService.findById(dto.customerId())
@@ -116,6 +116,10 @@ public class OrderServiceImpl implements OrderService {
 
         if (dto.offeredPrice() < service.getBasePrice()) {
             throw new IllegalArgumentException("Offered price must be at least the base price of this service.");
+        }
+
+        if (dto.expectedDoneAt().isBefore(ZonedDateTime.now())) {
+            throw new IllegalArgumentException("Expected done time must be at least the expected done time.");
         }
 
         Order order = new Order();
