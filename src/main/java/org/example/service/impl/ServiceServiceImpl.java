@@ -51,13 +51,11 @@ public class ServiceServiceImpl implements ServiceService {
     @Transactional
     public ServiceResponseDto createService(ServiceRequestDto dto) {
 
-        Service parent = null;
+        Service parent = new Service();
         if (dto.parentId() != null) {
             parent = repository.findById(dto.parentId())
                     .orElseThrow(() -> new NotFoundException("Parent not found"));
         }
-        if (repository.existsByNameAndParentService(dto.name(), parent))
-            throw new DuplicateException("Service name must be unique under the parent");
 
         Service entity = serviceMapper.toEntity(dto);
         entity.setParentService(parent);

@@ -14,6 +14,8 @@ public interface ServiceRepository
 
     boolean existsByNameAndParentService(String name, Service parentService);
 
+    boolean existsByParentService_Id(Long parentServiceId);
+
 //    Optional<Service> findByNameAndParentService(String name, Service parentService);
 
     List<Service> findByParentService(Service parentService);

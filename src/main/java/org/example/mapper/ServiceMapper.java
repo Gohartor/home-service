@@ -10,6 +10,8 @@ public interface ServiceMapper {
 
     Service toEntity(ServiceRequestDto dto);
 
+    @Mapping(target = "parentId", source = "parentService.id")
+    @Mapping(target = "parentName", source = "parentService.name")
     ServiceResponseDto toDto(Service entity);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
