@@ -25,6 +25,7 @@ public class WalletController {
 
     private final WalletService walletService;
 
+
 //    @GetMapping("/balance")
 //    @PreAuthorize("hasRole('EXPERT')")
 //    public ResponseEntity<WalletBalanceDto> getBalance(@AuthenticationPrincipal User principal) {
