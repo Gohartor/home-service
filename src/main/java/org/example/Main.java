@@ -18,21 +18,22 @@ public class Main {
 // all Customer operation
 
 
-//phase4
-//manage authorize preauthorize
-//change JWT
-//change register after email verify, upload image
-//email just one send (find verify account) -----> DONE
-//exception handler -----> DONE
-// unit test
-
-// branch master & dev (dev for coding)
+// branch master & dev (dev for coding) -----> DONE
 
 
-//phase-3
+// phase-3
 // filter & search for admin
 // upload image error
 // separated upload
 // history order expert -> pagination
 // rate to order (disable account - negative rate)
 // payment link (captcha - timer backend)
+
+
+// phase4
+// manage authorize preauthorize
+// change JWT
+// change expert status after email verify, upload image
+// email just one send (find verify account) -----> DONE
+// exception handler -----> DONE
+// unit test

@@ -9,6 +9,9 @@ import org.example.service.OrderService;
 import org.example.service.ProposalService;
 import org.example.service.UserService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -41,7 +44,8 @@ public class ProposalController {
 
 
 
-    @GetMapping("/orders/{orderId}/proposals")
+    @GetMapping("/orders/{orderId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CUSTOMER')")
     public ResponseEntity<List<ProposalViewDto>> getOrderProposals(
             @PathVariable Long orderId,
             @RequestParam(defaultValue = "price") String sortBy

@@ -26,8 +26,11 @@ public interface ProposalRepository
 
     Optional<Proposal> findByOrderIdAndIsAcceptedTrue(Long orderId);
 
-    @Query("select p from Proposal p where p.order.id = :orderId and p.expert is not null and p.expert.score is not null order by p.expert.score desc")
+    @Query("select p from Proposal p where p.order.id = :orderId order by p.expert.score desc")
     List<Proposal> findByOrderIdOrderByExpertScoreDesc(@Param("orderId") Long orderId);
+
+    @Query("select p from Proposal p where p.order.id = :orderId order by p.proposedPrice desc")
+    List<Proposal> findByOrderIdOrderByProposedPriceDesc(@Param("orderId") Long orderId);
 
     List<Proposal> findByOrderIdOrderByProposedPriceAsc(Long orderId);
 

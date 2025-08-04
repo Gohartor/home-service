@@ -24,7 +24,13 @@ public interface ProposalMapper {
     @Mapping(target = "order", ignore = true)
     Proposal fromDto(ProposalCreateByExpertDto dto);
 
+
+    @Mapping(target = "expertId", source = "expert.id")
+    @Mapping(target = "firstName", source = "expert.firstName")
+    @Mapping(target = "lastName", source = "expert.lastName")
+    @Mapping(target = "expertScore", source = "expert.score")
     ProposalViewDto toViewDto(Proposal proposal);
+
 
     List<ProposalViewDto> toViewDtoList(List<Proposal> proposals);
 

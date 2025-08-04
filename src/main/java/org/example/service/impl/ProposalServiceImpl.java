@@ -17,10 +17,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZonedDateTime;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class ProposalServiceImpl implements ProposalService {
@@ -141,10 +139,10 @@ public class ProposalServiceImpl implements ProposalService {
     public List<ProposalViewDto> getOrderProposals(Long orderId, String sortBy) {
         List<Proposal> proposals;
 
-        if ("score".equalsIgnoreCase(sortBy)) {
-            proposals = repository.findByOrderIdOrderByExpertScoreDesc(orderId);
+        if ("price".equalsIgnoreCase(sortBy)) {
+            proposals = repository.findByOrderIdOrderByProposedPriceDesc(orderId);
         } else {
-            proposals = repository.findByOrderIdOrderByProposedPriceAsc(orderId);
+            proposals = repository.findByOrderIdOrderByExpertScoreDesc(orderId);
         }
         return mapper.toViewDtoList(proposals);
     }
