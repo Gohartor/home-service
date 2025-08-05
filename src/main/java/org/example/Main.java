@@ -32,7 +32,7 @@ public class Main {
 // image upload change status
 // all expert feature
 // history order expert -> pagination
-// history rate single -> findByID 1/3 score
+// history order single -> findByID 1/3 score
 // see score any order
 // delete from wallet customer
 // transfer 70% to expert wallet -----> DONE

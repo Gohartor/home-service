@@ -34,6 +34,7 @@ public class PaymentServiceImpl implements PaymentService {
     private final WalletMapper walletMapper;
     private final TransactionMapper transactionMapper;
 
+
     @Override
     public PaymentResultDto payForOrder(Long userId, Long orderId) {
         Order order = orderService.findById(orderId)
@@ -68,7 +69,7 @@ public class PaymentServiceImpl implements PaymentService {
         User expert = order.getExpert();
         if (expert == null)
             throw new NotFoundException("Order does not have an expert assigned");
-        Wallet expertWallet = walletService.findById(expert.getId())
+        Wallet expertWallet = walletService.findByUser_Id(expert.getId())
                 .orElseThrow(() -> new NotFoundException("Expert wallet not found"));
 
         double expertShare = Math.floor(amount * 0.7 * 100) / 100.0;

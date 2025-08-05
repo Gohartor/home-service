@@ -7,6 +7,7 @@ import org.example.dto.customer.CustomerUpdateProfileDto;
 import org.example.dto.expert.*;
 import org.example.entity.User;
 import org.mapstruct.*;
+import org.springframework.data.domain.Page;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
@@ -45,4 +46,7 @@ public interface UserMapper {
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "profilePhoto", ignore = true)
     void updateCustomerProfileFromDto(CustomerUpdateProfileDto dto,@MappingTarget User user);
+
+
+    User fromUserSearchFilterDtoToEntity(UserSearchFilterDto dto);
 }

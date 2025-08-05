@@ -59,6 +59,7 @@ public class UserController {
 
 
     @PostMapping("/search")
+    @PreAuthorize("hasRole('ADMIN')")
     public Page<UserAdminListDto> searchUsers(@RequestBody UserSearchFilterDto filter) {
         Page<User> page = userService.searchUsers(filter);
         return page.map(userMapper::toUserAdminListDto);

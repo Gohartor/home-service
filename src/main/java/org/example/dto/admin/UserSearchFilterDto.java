@@ -5,7 +5,9 @@ import org.example.entity.enumerator.RoleType;
 
 public record UserSearchFilterDto(
         RoleType role,
-        String name,
+        String firstname,
+        String lastname,
+        String email,
         String service,
         Double ratingFrom,
         Double ratingTo,

@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.payment.PaymentRequestDto;
 import org.example.dto.payment.PaymentResultDto;
+import org.example.security.CustomUserDetails;
 import org.example.service.PaymentService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -28,10 +29,12 @@ public class PaymentController {
     @PostMapping("/pay-for-order")
     @PreAuthorize("hasAnyRole('ADMIN', 'CUSTOMER')")
     public ResponseEntity<PaymentResultDto> payForOrder(
-            @RequestParam("userId") Long userId,
+            Authentication authentication,
             @RequestParam Long orderId)
     {
-        return ResponseEntity.ok(paymentService.payForOrder(userId, orderId));
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        Long currentUserId = userDetails.getId();
+        return ResponseEntity.ok(paymentService.payForOrder(currentUserId, orderId));
     }
 
 

@@ -55,5 +55,8 @@ public class User extends BaseEntity {
 
     public void addNegativeScore(long hours) {
         this.negativeScore += hours;
+        if (this.negativeScore < 0) {
+            this.expertStatus = ExpertStatus.DEACTIVATED;
+        }
     }
 }

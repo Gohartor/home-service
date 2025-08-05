@@ -1,5 +1,5 @@
 package org.example.entity.enumerator;
 
 public enum ExpertStatus {
-    NEW,PENDING,APPROVED, REJECTED
+    NEW,PENDING,APPROVED, REJECTED, DEACTIVATED;
 }
