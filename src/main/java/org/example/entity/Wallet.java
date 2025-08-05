@@ -1,6 +1,7 @@
 package org.example.entity;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
@@ -19,6 +20,6 @@ public class Wallet extends BaseEntity {
 
     private Double balance = 0.0;
 
-    @ManyToOne
+    @OneToOne
     private User user;
 }

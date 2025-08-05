@@ -162,6 +162,7 @@ public class OrderServiceImpl implements OrderService {
         }
 
         order.setStatus(OrderStatus.PROPOSAL_SELECTED);
+        proposal.setAccepted(true);
 
         repository.save(order);
     }
@@ -215,6 +216,7 @@ public class OrderServiceImpl implements OrderService {
 //        List<Order> orders = repository.findAll(spec, Sort.by(Sort.Direction.DESC, "createdAt"));
 //        return orders.stream().map(orderMapper::fromOrderToAdminOrderSummaryDto).toList();
 //    }
+
 
     @Override
     public List<OrderSummaryDto> getOrderSummaryHistoryForAdmin(OrderHistoryFilterDto filter) {

@@ -6,6 +6,7 @@ import org.example.dto.payment.PaymentRequestDto;
 import org.example.dto.payment.PaymentResultDto;
 import org.example.service.PaymentService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,11 +26,12 @@ public class PaymentController {
 
 
     @PostMapping("/pay-for-order")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CUSTOMER')")
     public ResponseEntity<PaymentResultDto> payForOrder(
             @RequestParam("userId") Long userId,
-            @RequestBody @Valid PaymentRequestDto paymentRequest)
+            @RequestParam Long orderId)
     {
-        return ResponseEntity.ok(paymentService.payForOrder(userId, paymentRequest));
+        return ResponseEntity.ok(paymentService.payForOrder(userId, orderId));
     }
 
 

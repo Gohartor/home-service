@@ -85,7 +85,7 @@ public class ProposalServiceImpl implements ProposalService {
             throw new AccessDeniedException("your price is less than offered price");
         }
 
-        if (!dto.suggestedStartTime().isBefore(order.getExpectedDoneAt())) {
+        if (!dto.suggestedStartTime().isAfter(order.getExpectedDoneAt())) {
             throw new AccessDeniedException("your time is after offered time");
         }
 

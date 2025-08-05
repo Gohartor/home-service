@@ -62,16 +62,21 @@ public class WalletServiceImpl implements WalletService {
         return repository.existsById(id);
     }
 
+    @Override
+    public Optional<Wallet> findByUser_Id(Long userId) {
+        return repository.findByUser_Id(userId);
+    }
+
 
     public WalletBalanceDto getWalletBalance(Long userId) {
-        Wallet wallet = repository.findByUserId(userId)
+        Wallet wallet = repository.findByUser_Id(userId)
                 .orElseThrow(() -> new EntityNotFoundException("Wallet not found"));
         return new WalletBalanceDto(wallet.getBalance());
     }
 
 
     public List<TransactionDto> getTransactions(Long userId) {
-        Wallet wallet = repository.findByUserId(userId)
+        Wallet wallet = repository.findByUser_Id(userId)
                 .orElseThrow(() -> new EntityNotFoundException("Wallet not found"));
         List<Transaction> txs = transactionService.findAllByWalletIdOrderByCreateDateDesc(wallet.getId());
         return transactionMapper.toDtoList(txs);
@@ -80,7 +85,7 @@ public class WalletServiceImpl implements WalletService {
 
 
     public Page<TransactionDto> getTransactionsPage(Long userId, Pageable pageable) {
-        Wallet wallet = repository.findByUserId(userId)
+        Wallet wallet = repository.findByUser_Id(userId)
                 .orElseThrow(() -> new EntityNotFoundException("Wallet not found"));
 
         Page<Transaction> page = transactionService.findAllByWalletIdOrderByCreateDateDesc(wallet.getId(), pageable);
@@ -90,7 +95,7 @@ public class WalletServiceImpl implements WalletService {
 
     @Override
     public Optional<Wallet> findByUserId(Long userId) {
-        return repository.findByUserId(userId);
+        return repository.findByUser_Id(userId);
     }
 
 
@@ -98,7 +103,7 @@ public class WalletServiceImpl implements WalletService {
     @Override
     public WalletDto chargeWallet(Long userId, WalletChargeDto chargeRequest) {
 
-        Wallet wallet = repository.findByUserId(userId)
+        Wallet wallet = repository.findByUser_Id(userId)
                 .orElseThrow(() -> new NotFoundException("Wallet not found"));
 
         wallet.setBalance(wallet.getBalance() + chargeRequest.amount());
@@ -116,7 +121,7 @@ public class WalletServiceImpl implements WalletService {
 
     @Override
     public WalletDto getWalletByUser(Long userId) {
-        return repository.findByUserId(userId)
+        return repository.findByUser_Id(userId)
                 .map(walletMapper::toDto)
                 .orElseThrow(() -> new NotFoundException("Wallet not found"));
     }

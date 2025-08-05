@@ -17,6 +17,8 @@ public interface WalletService {
     List<Wallet> findAll();
     void deleteById(Long id);
     boolean existsById(Long id);
+    Optional<Wallet> findByUser_Id(Long userId);
+
 
     WalletBalanceDto getWalletBalance(Long userId);
     List<TransactionDto> getTransactions(Long userId);

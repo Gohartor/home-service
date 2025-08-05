@@ -21,6 +21,7 @@ import org.webjars.NotFoundException;
 
 import java.time.Duration;
 import java.time.ZonedDateTime;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -34,47 +35,65 @@ public class PaymentServiceImpl implements PaymentService {
     private final TransactionMapper transactionMapper;
 
     @Override
-    public PaymentResultDto payForOrder(Long userId, PaymentRequestDto paymentRequest) {
-
-        Order order = orderService.findById(paymentRequest.orderId())
+    public PaymentResultDto payForOrder(Long userId, Long orderId) {
+        Order order = orderService.findById(orderId)
                 .orElseThrow(() -> new NotFoundException("Order not found"));
 
         if (!order.getCustomer().getId().equals(userId))
-            return new PaymentResultDto(false, "you do not own the order");
-        if (!order.getStatus().equals(OrderStatus.COMPLETED))
-            return new PaymentResultDto(false, "can not complete payment (not order found)");
+            return new PaymentResultDto(false, "You do not own the order");
+
+        if (!OrderStatus.COMPLETED.equals(order.getStatus()))
+            return new PaymentResultDto(false, "Can not complete payment (order status invalid)");
+
         if (order.isPaid())
-            return new PaymentResultDto(false, "cost this order is paid");
+            return new PaymentResultDto(false, "Order is already paid");
 
-        Wallet wallet = walletService.findById(userId)
-                .orElseThrow(() -> new NotFoundException("Wallet not found"));
-
+        Wallet customerWallet = walletService.findByUser_Id(userId)
+                .orElseThrow(() -> new NotFoundException("Customer wallet not found"));
 
         Double amount = order.getTotalPrice();
-        if (wallet.getBalance() < amount)
-            return new PaymentResultDto(false, "not enough amount");
+
+        if (customerWallet.getBalance() < amount)
+            return new PaymentResultDto(false, "Not enough amount");
+
+        customerWallet.setBalance(customerWallet.getBalance() - amount);
+
+        Transaction customerTransaction = new Transaction();
+        customerTransaction.setAmount(-amount);
+        customerTransaction.setType(TransactionType.PAYMENT);
+        customerTransaction.setRelatedOrderId(order.getId());
+        customerTransaction.setWallet(customerWallet);
+        transactionService.save(customerTransaction);
+
+        User expert = order.getExpert();
+        if (expert == null)
+            throw new NotFoundException("Order does not have an expert assigned");
+        Wallet expertWallet = walletService.findById(expert.getId())
+                .orElseThrow(() -> new NotFoundException("Expert wallet not found"));
+
+        double expertShare = Math.floor(amount * 0.7 * 100) / 100.0;
+        expertWallet.setBalance(expertWallet.getBalance() + expertShare);
+
+        Transaction expertTransaction = new Transaction();
+        expertTransaction.setAmount(expertShare);
+        expertTransaction.setType(TransactionType.PAYMENT);
+        expertTransaction.setRelatedOrderId(order.getId());
+        expertTransaction.setWallet(expertWallet);
+        transactionService.save(expertTransaction);
 
 
-        wallet.setBalance(wallet.getBalance() - amount);
-        Transaction transaction = new Transaction();
-        transaction.setAmount(-amount);
-        transaction.setType(TransactionType.PAYMENT);
-        transaction.setRelatedOrderId(order.getId());
-        transaction.setWallet(wallet);
-        transactionService.save(transaction);
-
-
-        order.setStatus(OrderStatus.COMPLETED);
         order.setPaid(true);
+        order.setStatus(OrderStatus.COMPLETED);
 
         applyLatePenaltyOrReward(order);
 
-
-        walletService.save(wallet);
+        walletService.save(customerWallet);
+        walletService.save(expertWallet);
         orderService.save(order);
 
-        return new PaymentResultDto(true, "successfully paid");
+        return new PaymentResultDto(true, "Successfully paid, 70% transferred to expert.");
     }
+
 
 
     private void applyLatePenaltyOrReward(Order order) {

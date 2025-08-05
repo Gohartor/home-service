@@ -59,6 +59,7 @@ public class OrderController {
 
 
     @PostMapping("/select-proposal")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CUSTOMER')")
     public ResponseEntity<String> selectProposal(
             @RequestParam Long proposalId,
             @RequestParam Long orderId) {
