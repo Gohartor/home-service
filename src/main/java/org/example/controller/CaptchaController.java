@@ -1,7 +1,7 @@
 package org.example.controller;
 
 import jakarta.servlet.http.HttpSession;
-import org.example.utility.CaptchaGenerator;
+import org.example.utility.CaptchaUtil;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,9 +16,9 @@ public class CaptchaController {
 
     @GetMapping("/generate")
     public CaptchaResponse getCaptcha(HttpSession session) {
-        String text = CaptchaGenerator.generateText();
+        String text = CaptchaUtil.generateText();
         session.setAttribute("captcha", text);
-        var image = CaptchaGenerator.generateImage(text);
+        var image = CaptchaUtil.generateImage(text);
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {

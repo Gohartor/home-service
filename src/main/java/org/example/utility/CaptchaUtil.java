@@ -1,10 +1,13 @@
 package org.example.utility;
 
+import org.springframework.stereotype.Component;
+
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.Random;
 
-public class CaptchaGenerator {
+@Component
+public class CaptchaUtil {
     private static final String CHARACTERS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
     private static final int WIDTH = 150;
     private static final int HEIGHT = 50;
