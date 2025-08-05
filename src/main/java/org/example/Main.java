@@ -27,7 +27,7 @@ public class Main {
 
 // phase-3
 // filter & search for admin -----> DONE
-// upload image error (non required)
+// upload image (non required)
 // separated upload image
 // image upload change status
 // all expert feature
@@ -45,10 +45,10 @@ public class Main {
 
 
 // phase4
-// manage authorize preauthorize
-// change JWT
+// manage authorize preauthorize ----->DONE
+// change JWT ---->DONE
 // change expert status after email verify, upload image
-// show wallet
+// show wallet ----> DONE
 // email just one send (find verify account) -----> DONE
 // exception handler -----> DONE
 // unit test

@@ -7,6 +7,7 @@ import org.example.dto.wallet.WalletBalanceDto;
 import org.example.dto.wallet.WalletChargeDto;
 import org.example.dto.wallet.WalletDto;
 import org.example.entity.User;
+import org.example.security.CustomUserDetails;
 import org.example.service.WalletService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -34,11 +35,20 @@ public class WalletController {
 
 
 
-    @GetMapping("/balance")
-    public ResponseEntity<WalletBalanceDto> getBalance(@RequestParam("userId") Long userId) {
-        return ResponseEntity.ok(walletService.getWalletBalance(userId));
-    }
+//    @GetMapping("/balance")
+//    @PreAuthorize("hasAnyRole('ADMIN', 'CUSTOMER')")
+//    public ResponseEntity<WalletBalanceDto> getBalance(@RequestParam("userId") Long userId) {
+//        return ResponseEntity.ok(walletService.getWalletBalance(userId));
+//    }
 
+
+    @GetMapping("/balance")
+    @PreAuthorize("hasAnyRole('CUSTOMER', 'EXPERT')")
+    public ResponseEntity<WalletBalanceDto> getMyBalance(Authentication authentication) {
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        Long currentUserId = userDetails.getId();
+        return ResponseEntity.ok(walletService.getWalletBalance(currentUserId));
+    }
 
 
 
@@ -69,8 +79,9 @@ public class WalletController {
 
     @GetMapping("/my-wallet")
     public ResponseEntity<WalletDto> getMyWallet(Authentication authentication) {
-        Long userId = getUserIdFromAuth(authentication);
-        return ResponseEntity.ok(walletService.getWalletByUser(userId));
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        Long currentUserId = userDetails.getId();
+        return ResponseEntity.ok(walletService.getWalletByUser(currentUserId));
     }
 
 
