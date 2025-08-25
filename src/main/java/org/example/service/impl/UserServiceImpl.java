@@ -2,6 +2,8 @@ package org.example.service.impl;
 
 
 import jakarta.persistence.criteria.Predicate;
+import jakarta.transaction.Transactional;
+import org.example.dto.admin.AdminLoginRequestDto;
 import org.example.dto.admin.UserSearchFilterDto;
 import org.example.dto.customer.CustomerLoginDto;
 import org.example.dto.customer.CustomerRegisterDto;
@@ -9,16 +11,14 @@ import org.example.dto.customer.CustomerUpdateProfileDto;
 import org.example.dto.expert.*;
 import org.example.entity.Service;
 import org.example.entity.User;
+import org.example.entity.Wallet;
 import org.example.entity.enumerator.ExpertStatus;
 import org.example.entity.enumerator.RoleType;
 import org.example.exception.DuplicateResourceException;
 import org.example.mapper.ServiceMapper;
 import org.example.mapper.UserMapper;
 import org.example.repository.UserRepository;
-import org.example.service.EmailVerificationTokenService;
-import org.example.service.OrderService;
-import org.example.service.ServiceService;
-import org.example.service.UserService;
+import org.example.service.*;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -48,6 +48,7 @@ public class UserServiceImpl implements UserService {
     private final ServiceMapper serviceMapper;
     private final EmailService emailService;
     private final EmailVerificationTokenService emailVerificationTokenService;
+    private final WalletService walletService;
 
 
     public UserServiceImpl(UserRepository repository,
@@ -57,7 +58,8 @@ public class UserServiceImpl implements UserService {
                            PasswordEncoder passwordEncoder,
                            ServiceMapper serviceMapper,
                            EmailService emailService,
-                           @Lazy EmailVerificationTokenService emailVerificationTokenService) {
+                           @Lazy EmailVerificationTokenService emailVerificationTokenService,
+                           WalletService walletService) {
         this.repository = repository;
         this.serviceService = serviceService;
         this.orderService = orderService;
@@ -66,6 +68,7 @@ public class UserServiceImpl implements UserService {
         this.serviceMapper = serviceMapper;
         this.emailService = emailService;
         this.emailVerificationTokenService = emailVerificationTokenService;
+        this.walletService = walletService;
     }
 
 
@@ -83,6 +86,8 @@ public class UserServiceImpl implements UserService {
     public User save(User user) {
         return repository.save(user);
     }
+
+
 
     @Override
     public List<ExpertResponseDto> listPendingExperts() {
@@ -111,6 +116,10 @@ public class UserServiceImpl implements UserService {
         repository.save(expert);
     }
 
+
+
+
+
     @Override
     public void addExpertToService(Long expertId, Long serviceId) {
         User expert = repository.findByIdAndRole(expertId, RoleType.EXPERT)
@@ -119,11 +128,14 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new NotFoundException("Service not found"));
 
         expert.getServices().add(service);
-        service.getExperts().add(expert);
+//        service.getExperts().add(expert);
 
         repository.save(expert);
-        serviceService.save(service);
+//        serviceService.save(service);
     }
+
+
+
 
     @Override
     public void removeExpertFromService(Long expertId, Long serviceId) {
@@ -158,7 +170,8 @@ public class UserServiceImpl implements UserService {
 //    }
 
     @Override
-    public void registerCustomer(CustomerRegisterDto dto) {
+    @Transactional
+    public Long registerCustomer(CustomerRegisterDto dto) {
         if (repository.existsByEmail(dto.email()))
             throw new DuplicateResourceException("Email already in use!");
 
@@ -167,6 +180,9 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode(dto.password()));
 
         repository.save(user);
+        walletService.createWalletForUser(user);
+
+        return user.getId();
     }
 
     @Override
@@ -213,6 +229,12 @@ public class UserServiceImpl implements UserService {
 
     }
 
+    public void loginAdmin(AdminLoginRequestDto dto) {
+        User admin = repository.findByEmail(dto.email())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid email or password."));
+        if (!passwordEncoder.matches(dto.password(), admin.getPassword()))
+            throw new IllegalArgumentException("Invalid email or password.");
+    }
 
 
 
@@ -309,6 +331,7 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
+    @Transactional
     public ExpertProfileDto registerExpert(ExpertRegisterDto dto, MultipartFile profilePhoto) {
 
         String photoUrl = null;
@@ -332,8 +355,11 @@ public class UserServiceImpl implements UserService {
         expert.setFirstName(dto.firstName());
         expert.setLastName(dto.lastName());
         expert.setEmail(dto.email());
-        expert.setPassword(dto.password());
+        expert.setPassword(passwordEncoder.encode(dto.password()) );
+        expert.setRole(RoleType.EXPERT);
         repository.save(expert);
+
+        walletService.createWalletForUser(expert);
 
         return userMapper.mapToProfileDto(expert);
     }

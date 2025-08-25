@@ -3,6 +3,9 @@ package org.example.repository;
 import org.example.entity.Order;
 import org.example.entity.Proposal;
 import org.example.repository.base.BaseRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -31,6 +34,11 @@ public interface ProposalRepository
 
     @Query("select p from Proposal p where p.order.id = :orderId order by p.proposedPrice desc")
     List<Proposal> findByOrderIdOrderByProposedPriceDesc(@Param("orderId") Long orderId);
+
+
+    Page<Proposal> getProposalsByOrder_Id(Long orderId, Pageable pageable);
+
+    List<Proposal> getProposalsByOrder_Id(Long orderId, Sort sort);
 
     List<Proposal> findByOrderIdOrderByProposedPriceAsc(Long orderId);
 

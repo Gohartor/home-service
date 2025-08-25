@@ -1,5 +1,6 @@
 package org.example.service;
 
+import org.example.dto.admin.AdminLoginRequestDto;
 import org.example.dto.admin.UserSearchFilterDto;
 import org.example.dto.customer.CustomerLoginDto;
 import org.example.dto.customer.CustomerRegisterDto;
@@ -34,11 +35,13 @@ public interface UserService {
 
 //    void registerExpert(ExpertRegisterDto dto);
 
-    void registerCustomer(CustomerRegisterDto dto);
+    Long registerCustomer(CustomerRegisterDto dto);
 
     ExpertLoginResponseDto loginExpert(ExpertLoginRequestDto dto);
 
     void loginCustomer(CustomerLoginDto dto);
+
+    void loginAdmin(AdminLoginRequestDto dto);
 
     void updateExpertProfile(Long expertId, ExpertUpdateProfileDto dto);
 

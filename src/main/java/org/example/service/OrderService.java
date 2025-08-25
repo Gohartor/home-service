@@ -28,6 +28,8 @@ public interface OrderService {
 
     void createOrderByCustomer(CreateOrderByCustomerDto dto);
 
+    void expertArrived(Long orderId, Long expertId);
+
     void selectProposal(Long orderId, Long proposalId);
 
     void startOrder(Long orderId);

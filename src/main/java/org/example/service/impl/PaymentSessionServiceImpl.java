@@ -31,7 +31,9 @@ public class PaymentSessionServiceImpl implements PaymentSessionService {
 
     @Override
     public Optional<PaymentSession> findByToken(String token) {
-        return repo.findByToken(token);
+        Optional<PaymentSession> result = repo.findByToken(token);
+
+        return result;
     }
 
     @Override

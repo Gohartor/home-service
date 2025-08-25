@@ -29,55 +29,304 @@ class ServiceServiceImplTest {
     }
 
 
+
+
+
+
     @Test
-    void createService_success_withParent() {
+    void createService_success_withoutParent() {
+        // Arrange
         ServiceRequestDto dto = mock(ServiceRequestDto.class);
-        when(dto.name()).thenReturn("Child");
-        when(dto.parentId()).thenReturn(1L);
+        when(dto.parentId()).thenReturn(null);
 
-        Service parent = new Service();
-        parent.setId(1L);
-
-        when(repository.findById(1L)).thenReturn(Optional.of(parent));
-        when(repository.existsByNameAndParentService("Child", parent)).thenReturn(false);
-
-        Service mapped = new Service();
-        mapped.setName("Child");
-
-        when(serviceMapper.toEntity(dto)).thenReturn(mapped);
-        when(repository.save(mapped)).thenReturn(mapped);
-
+        Service entity = new Service();
         ServiceResponseDto resDto = mock(ServiceResponseDto.class);
-        when(serviceMapper.toDto(mapped)).thenReturn(resDto);
 
+        when(serviceMapper.toEntity(dto)).thenReturn(entity);
+        when(repository.save(entity)).thenReturn(entity);
+        when(serviceMapper.toDto(entity)).thenReturn(resDto);
+
+        // Act
         ServiceResponseDto result = serviceService.createService(dto);
 
-        assertEquals(resDto, result);
-        assertSame(parent, mapped.getParentService());
-        verify(repository).save(mapped);
+        // Assert
+        assertSame(resDto, result);
+        assertNull(entity.getParentService());
+        verify(repository, never()).findById(anyLong());
+        verify(repository).save(entity);
+        verify(serviceMapper).toEntity(dto);
+        verify(serviceMapper).toDto(entity);
     }
 
     @Test
-    void createService_fail_ifNameNotUnique() {
+    void createService_success_withParent() {
+        // Arrange
         ServiceRequestDto dto = mock(ServiceRequestDto.class);
-        when(dto.name()).thenReturn("Child");
-        when(dto.parentId()).thenReturn(null);
+        when(dto.parentId()).thenReturn(100L);
 
-        when(repository.existsByNameAndParentService("Child", null)).thenReturn(true);
+        Service parent = new Service();
+        parent.setId(100L);
 
-        assertThrows(DuplicateException.class, () -> serviceService.createService(dto));
+        Service entity = new Service();
+        ServiceResponseDto resDto = mock(ServiceResponseDto.class);
+
+        when(repository.findById(100L)).thenReturn(Optional.of(parent));
+        when(serviceMapper.toEntity(dto)).thenReturn(entity);
+        when(repository.save(entity)).thenReturn(entity);
+        when(serviceMapper.toDto(entity)).thenReturn(resDto);
+
+        // Act
+        ServiceResponseDto result = serviceService.createService(dto);
+
+        // Assert
+        assertSame(resDto, result);
+        assertSame(parent, entity.getParentService());
+        verify(repository).findById(100L);
+        verify(repository).save(entity);
     }
 
     @Test
     void createService_fail_ifParentNotFound() {
+        // Arrange
         ServiceRequestDto dto = mock(ServiceRequestDto.class);
-        when(dto.name()).thenReturn("Child");
-        when(dto.parentId()).thenReturn(99L);
+        when(dto.parentId()).thenReturn(200L);
+        when(repository.findById(200L)).thenReturn(Optional.empty());
 
-        when(repository.findById(99L)).thenReturn(Optional.empty());
-
+        // Act + Assert
         assertThrows(NotFoundException.class, () -> serviceService.createService(dto));
+        verify(repository).findById(200L);
+        verify(repository, never()).save(any());
     }
+
+
+
+
+
+
+
+    @Test
+    void updateService_success_noChange_skipUniqueness() {
+        // Arrange
+        Long serviceId = 1L;
+        Service existing = new Service();
+        existing.setId(serviceId);
+        existing.setName("OldName");
+        existing.setParentService(null);
+
+        ServiceRequestDto dto = mock(ServiceRequestDto.class);
+        when(dto.parentId()).thenReturn(null);
+        when(dto.name()).thenReturn("OldName");
+
+        when(repository.findById(serviceId)).thenReturn(Optional.of(existing));
+        when(repository.save(existing)).thenReturn(existing);
+        ServiceResponseDto resDto = mock(ServiceResponseDto.class);
+        when(serviceMapper.toDto(existing)).thenReturn(resDto);
+
+        // Act
+        ServiceResponseDto result = serviceService.updateService(serviceId, dto);
+
+        // Assert
+        assertSame(resDto, result);
+        verify(repository, never()).existsByNameAndParentService(any(), any());
+    }
+
+    @Test
+    void updateService_success_withChange_noDuplicate() {
+        Long serviceId = 2L;
+        Service existing = new Service();
+        existing.setId(serviceId);
+        existing.setName("OldName");
+        existing.setParentService(null);
+
+        ServiceRequestDto dto = mock(ServiceRequestDto.class);
+        when(dto.name()).thenReturn("NewName");
+        when(dto.parentId()).thenReturn(null);
+
+        when(repository.findById(serviceId)).thenReturn(Optional.of(existing));
+        when(repository.existsByNameAndParentService(eq("NewName"), isNull())).thenReturn(false);
+        when(repository.save(existing)).thenReturn(existing);
+        ServiceResponseDto resDto = mock(ServiceResponseDto.class);
+        when(serviceMapper.toDto(existing)).thenReturn(resDto);
+
+        ServiceResponseDto result = serviceService.updateService(serviceId, dto);
+
+        assertSame(resDto, result);
+        verify(repository).existsByNameAndParentService("NewName", null);
+        verify(serviceMapper).updateEntityFromDto(dto, existing);
+    }
+
+    @Test
+    void updateService_fail_ifServiceNotFound() {
+        when(repository.findById(999L)).thenReturn(Optional.empty());
+        ServiceRequestDto dto = mock(ServiceRequestDto.class);
+
+        assertThrows(NotFoundException.class, () -> serviceService.updateService(999L, dto));
+    }
+
+    @Test
+    void updateService_fail_ifParentNotFound() {
+        Long serviceId = 3L;
+        Service existing = new Service();
+        existing.setId(serviceId);
+        existing.setName("OldName");
+
+        ServiceRequestDto dto = mock(ServiceRequestDto.class);
+        when(dto.parentId()).thenReturn(10L);
+
+        when(repository.findById(serviceId)).thenReturn(Optional.of(existing));
+        when(repository.findById(10L)).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> serviceService.updateService(serviceId, dto));
+    }
+
+    @Test
+    void updateService_fail_ifDuplicateFound() {
+        Long serviceId = 4L;
+        Service existing = new Service();
+        existing.setId(serviceId);
+        existing.setName("OldName");
+        existing.setParentService(null);
+
+        ServiceRequestDto dto = mock(ServiceRequestDto.class);
+        when(dto.name()).thenReturn("NewName");
+        when(dto.parentId()).thenReturn(null);
+
+        when(repository.findById(serviceId)).thenReturn(Optional.of(existing));
+        when(repository.existsByNameAndParentService("NewName", null)).thenReturn(true);
+
+        assertThrows(DuplicateException.class, () -> serviceService.updateService(serviceId, dto));
+    }
+
+    @Test
+    void updateService_success_changeOnlyParent() {
+        Long serviceId = 5L;
+        Service existing = new Service();
+        existing.setId(serviceId);
+        existing.setName("SameName");
+        Service oldParent = new Service(); oldParent.setId(1L);
+        existing.setParentService(oldParent);
+
+        Service newParent = new Service(); newParent.setId(2L);
+
+        ServiceRequestDto dto = mock(ServiceRequestDto.class);
+        when(dto.name()).thenReturn("SameName");
+        when(dto.parentId()).thenReturn(2L);
+
+        when(repository.findById(serviceId)).thenReturn(Optional.of(existing));
+        when(repository.findById(2L)).thenReturn(Optional.of(newParent));
+        when(repository.existsByNameAndParentService("SameName", newParent)).thenReturn(false);
+        when(repository.save(existing)).thenReturn(existing);
+        ServiceResponseDto resDto = mock(ServiceResponseDto.class);
+        when(serviceMapper.toDto(existing)).thenReturn(resDto);
+
+        ServiceResponseDto result = serviceService.updateService(serviceId, dto);
+
+        assertSame(resDto, result);
+        assertSame(newParent, existing.getParentService());
+    }
+
+
+
+
+
+
+
+
+    @Test
+    void deleteService_success_whenExists() {
+        // Arrange
+        Long serviceId = 1L;
+        Service service = new Service();
+        service.setId(serviceId);
+
+        when(repository.findById(serviceId)).thenReturn(Optional.of(service));
+
+        // Act
+        serviceService.deleteService(serviceId);
+
+        // Assert
+        verify(repository).findById(serviceId);
+        verify(repository).delete(service);
+    }
+
+    @Test
+    void deleteService_fail_whenNotFound() {
+        // Arrange
+        Long serviceId = 99L;
+        when(repository.findById(serviceId)).thenReturn(Optional.empty());
+
+        // Act + Assert
+        assertThrows(NotFoundException.class, () -> serviceService.deleteService(serviceId));
+
+        verify(repository).findById(serviceId);
+        verify(repository, never()).delete(any());
+    }
+
+
+
+
+
+
+
+
+    @Test
+    void listServices_success_whenParentIdNull() {
+        // Arrange
+        Service service1 = new Service(); service1.setId(1L);
+        Service service2 = new Service(); service2.setId(2L);
+
+        ServiceResponseDto dto1 = mock(ServiceResponseDto.class);
+        ServiceResponseDto dto2 = mock(ServiceResponseDto.class);
+
+        when(repository.findByParentService(null)).thenReturn(List.of(service1, service2));
+        when(serviceMapper.toDto(service1)).thenReturn(dto1);
+        when(serviceMapper.toDto(service2)).thenReturn(dto2);
+
+        // Act
+        List<ServiceResponseDto> result = serviceService.listServices(null);
+
+        // Assert
+        assertEquals(List.of(dto1, dto2), result);
+        verify(repository).findByParentService(null);
+    }
+
+    @Test
+    void listServices_success_whenParentExists() {
+        // Arrange
+        Long parentId = 10L;
+        Service parent = new Service(); parent.setId(parentId);
+
+        Service service1 = new Service(); service1.setId(1L);
+
+        ServiceResponseDto dto1 = mock(ServiceResponseDto.class);
+
+        when(repository.findById(parentId)).thenReturn(Optional.of(parent));
+        when(repository.findByParentService(parent)).thenReturn(List.of(service1));
+        when(serviceMapper.toDto(service1)).thenReturn(dto1);
+
+        // Act
+        List<ServiceResponseDto> result = serviceService.listServices(parentId);
+
+        // Assert
+        assertEquals(List.of(dto1), result);
+        verify(repository).findById(parentId);
+        verify(repository).findByParentService(parent);
+    }
+
+    @Test
+    void listServices_fail_whenParentNotFound() {
+        // Arrange
+        Long parentId = 20L;
+        when(repository.findById(parentId)).thenReturn(Optional.empty());
+
+        // Act + Assert
+        assertThrows(NotFoundException.class, () -> serviceService.listServices(parentId));
+
+        verify(repository).findById(parentId);
+        verify(repository, never()).findByParentService(any());
+    }
+
+
 
 
 
@@ -110,24 +359,7 @@ class ServiceServiceImplTest {
         assertEquals(responseDto, result);
     }
 
-    @Test
-    void updateService_fail_ifServiceNotFound() {
-        ServiceRequestDto dto = mock(ServiceRequestDto.class);
-        when(repository.findById(66L)).thenReturn(Optional.empty());
-        assertThrows(NotFoundException.class, () -> serviceService.updateService(66L, dto));
-    }
 
-    @Test
-    void updateService_fail_ifParentNotFound() {
-        ServiceRequestDto dto = mock(ServiceRequestDto.class);
-        when(dto.parentId()).thenReturn(42L);
-
-        Service service = new Service();
-        when(repository.findById(7L)).thenReturn(Optional.of(service));
-        when(repository.findById(42L)).thenReturn(Optional.empty());
-
-        assertThrows(NotFoundException.class, () -> serviceService.updateService(7L, dto));
-    }
 
     @Test
     void updateService_fail_ifNameDuplicate() {

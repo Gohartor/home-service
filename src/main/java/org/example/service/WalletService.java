@@ -4,6 +4,7 @@ import org.example.dto.transaction.TransactionDto;
 import org.example.dto.wallet.WalletBalanceDto;
 import org.example.dto.wallet.WalletChargeDto;
 import org.example.dto.wallet.WalletDto;
+import org.example.entity.User;
 import org.example.entity.Wallet;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,6 +19,8 @@ public interface WalletService {
     void deleteById(Long id);
     boolean existsById(Long id);
     Optional<Wallet> findByUser_Id(Long userId);
+
+    Wallet createWalletForUser(User user);
 
 
     WalletBalanceDto getWalletBalance(Long userId);

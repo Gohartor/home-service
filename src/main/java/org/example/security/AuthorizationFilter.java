@@ -30,6 +30,23 @@ public class AuthorizationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
+        String path = request.getServletPath();
+
+
+        if (path.startsWith("/payment/page")
+                || path.startsWith("/payment/init")
+                || path.equals("/login")
+                || path.equals("/customers/register")
+                || path.equals("/customers/login")
+                || path.equals("/experts/register")
+                || path.equals("/experts/login")
+                || path.startsWith("/experts/verify-email")
+        ) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+
 
         final String authHeader = request.getHeader("Authorization");
 
@@ -50,11 +67,13 @@ public class AuthorizationFilter extends OncePerRequestFilter {
                         .loadUserByUsername(username);
 
                 if (jwtTokenUtil.isValid(jwt)) {
+                    var authorities = jwtTokenUtil.getAuthorities(jwt);
+
                     UsernamePasswordAuthenticationToken authToken =
                             new UsernamePasswordAuthenticationToken(
                                     userDetails,
                                     null,
-                                    userDetails.getAuthorities()
+                                    authorities
                             );
 
                     SecurityContextHolder.getContext().setAuthentication(authToken);
@@ -63,6 +82,7 @@ public class AuthorizationFilter extends OncePerRequestFilter {
         } catch (Exception e) {
             System.out.println("JWT validation failed: " + e.getMessage());
         }
+
 
         filterChain.doFilter(request, response);
     }

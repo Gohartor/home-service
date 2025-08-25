@@ -57,9 +57,6 @@
             <artifactId>spring-boot-starter-mail</artifactId>
         </dependency>
 
-
-
-
         <!-- PostgreSQL Driver -->
         <dependency>
             <groupId>org.postgresql</groupId>
@@ -108,7 +105,6 @@
             <scope>compile</scope>
         </dependency>
 
-
         <!-- JWT -->
         <dependency>
             <groupId>com.auth0</groupId>
@@ -116,9 +112,35 @@
             <version>4.4.0</version>
         </dependency>
 
+        <!-- JSP and JSTL Dependencies -->
+        <dependency>
+            <groupId>org.apache.tomcat.embed</groupId>
+            <artifactId>tomcat-embed-jasper</artifactId>
+            <!-- Scope runtime is often used for this in Spring Boot -->
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- REMOVE THIS - spring-boot-starter-web already includes it -->
+        <!-- <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <scope>provided</scope>
+        </dependency> -->
+
+        <dependency>
+            <groupId>jakarta.servlet.jsp.jstl</groupId>
+            <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
+            <version>3.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.web</groupId>
+            <artifactId>jakarta.servlet.jsp.jstl</artifactId>
+            <version>3.0.1</version>
+        </dependency>
+
+
 
     </dependencies>
-
 
     <build>
         <plugins>
@@ -130,24 +152,12 @@
 
             <!-- Maven Compiler Plugin -->
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <source>21</source>
-                    <target>21</target>
-                    <annotationProcessorPaths>
-                        <path>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                            <version>1.18.38</version>
-                        </path>
-                        <path>
-                            <groupId>org.mapstruct</groupId>
-                            <artifactId>mapstruct-processor</artifactId>
-                            <version>${org.mapstruct.version}</version>
-                        </path>
-                    </annotationProcessorPaths>
+                    <mainClass>org.example.Main</mainClass>
+                    <!-- اگر می‌خوای برنامه‌ت به صورت executable باشه، اینو هم اضافه کن -->
+                    <executable>true</executable>
                 </configuration>
             </plugin>
         </plugins>

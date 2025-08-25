@@ -9,6 +9,6 @@ public record ExpertProfileDto(
         String email,
         List<String> serviceNames,
         String bio,
-        String profilePhotoUrl,
+        String profilePhoto,
         String expertStatus
 ) {}

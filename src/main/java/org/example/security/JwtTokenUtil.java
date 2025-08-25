@@ -10,9 +10,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import java.time.Instant;
 import java.util.Date;
-
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Component
@@ -32,11 +34,26 @@ public class JwtTokenUtil {
                         userDetails.getAuthorities()
                                 .stream()
                                 .map(GrantedAuthority::getAuthority)
-                                .toList())
+                                .map(role -> role.startsWith("ROLE_") ? role : "ROLE_" + role)
+                                .toList()
+                )
                 .withIssuedAt(Date.from(Instant.now()))
-                .withExpiresAt(Date.from(Instant.now().plusMillis(EXPIRATION_TIME)))
+                .withExpiresAt(Date.from(Instant.now().plusSeconds(EXPIRATION_TIME)))
                 .sign(Algorithm.HMAC256(SECRET_KEY));
     }
+
+
+    public List<GrantedAuthority> getAuthorities(String token) {
+        DecodedJWT decodedJWT = decode(token);
+        List<String> roles = decodedJWT.getClaim("authorities").asList(String.class);
+        if (roles == null) return List.of();
+        return roles.stream()
+                .map(r -> r.startsWith("ROLE_") ? r : "ROLE_" + r)
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toList());
+    }
+
+
 
     public String getUsernameFromToken(String token) {
         try {

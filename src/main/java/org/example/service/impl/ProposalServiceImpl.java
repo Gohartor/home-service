@@ -1,5 +1,6 @@
 package org.example.service.impl;
 
+import org.example.dto.PageCustom;
 import org.example.dto.proposal.ProposalCreateByExpertDto;
 import org.example.dto.proposal.ProposalViewDto;
 import org.example.entity.Order;
@@ -12,6 +13,9 @@ import org.example.service.OrderService;
 import org.example.service.ProposalService;
 import org.example.service.UserService;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -105,11 +109,11 @@ public class ProposalServiceImpl implements ProposalService {
         proposal.setProposedPrice(dto.suggestedPrice());
         proposal.setProposedStartAt(dto.suggestedStartTime());
         repository.save(proposal);
-
-        if (repository.countByOrder(order) == 1) {
-            order.setStatus(OrderStatus.PROPOSAL_SELECTED);
-            orderService.save(order);
-        }
+//
+//        if (repository.countByOrder(order) == 1) {
+//            order.setStatus(OrderStatus.PROPOSAL_SELECTED);
+//            orderService.save(order);
+//        }
 
     }
 
@@ -145,6 +149,19 @@ public class ProposalServiceImpl implements ProposalService {
             proposals = repository.findByOrderIdOrderByExpertScoreDesc(orderId);
         }
         return mapper.toViewDtoList(proposals);
+    }
+
+
+//    public Page<ProposalViewDto> getOrderProposals(Long orderId, int  page, int size, String sortBy) {
+//        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, sortBy));
+//         repository.getProposalsByOrder_Id(orderId, pageRequest);
+//         return
+//    }
+
+    @Override
+    public Page<Proposal> getOrderProposalsPage(Long orderId, PageCustom page) {
+        PageRequest pageRequest = PageRequest.of(page.page(), page.size(), Sort.by(Sort.Direction.ASC, page.sortBy()));
+        return repository.getProposalsByOrder_Id(orderId, pageRequest);
     }
 
 

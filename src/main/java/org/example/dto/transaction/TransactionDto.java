@@ -9,5 +9,7 @@ public record TransactionDto(
         Long relatedOrderId,
         Long walletId,
         ZonedDateTime createdAt
-) {}
+) {
+
+}
 

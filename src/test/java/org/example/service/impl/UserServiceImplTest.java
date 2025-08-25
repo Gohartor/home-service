@@ -1,5 +1,6 @@
 package org.example.service.impl;
 
+import org.example.dto.admin.AdminLoginRequestDto;
 import org.example.dto.admin.UserSearchFilterDto;
 import org.example.dto.customer.CustomerLoginDto;
 import org.example.dto.customer.CustomerRegisterDto;
@@ -14,12 +15,14 @@ import org.example.mapper.UserMapper;
 import org.example.repository.UserRepository;
 import org.example.service.OrderService;
 import org.example.service.ServiceService;
+import org.example.service.WalletService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.mock.web.MockMultipartFile;
@@ -29,10 +32,8 @@ import org.webjars.NotFoundException;
 
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
+import java.nio.file.Files;
+import java.util.*;
 import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -53,6 +54,9 @@ class UserServiceImplTest {
 
     @Mock
     ServiceService serviceService;
+
+    @Mock
+    WalletService walletService;
 
     @Mock
     PasswordEncoder passwordEncoder;
@@ -80,6 +84,741 @@ class UserServiceImplTest {
 
     @Mock
     ExpertRegisterDto expertRegisterDto;
+
+
+
+    @Test
+    void listPendingExperts_shouldReturnMappedDtos_whenExpertsExist() {
+        // Arrange
+        User expert1 = new User(); expert1.setId(1L);
+        User expert2 = new User(); expert2.setId(2L);
+
+        List<User> experts = List.of(expert1, expert2);
+
+        ExpertResponseDto dto1 = mock(ExpertResponseDto.class);
+        ExpertResponseDto dto2 = mock(ExpertResponseDto.class);
+
+        when(repository.findByRoleAndExpertStatus(RoleType.EXPERT, ExpertStatus.NEW))
+                .thenReturn(experts);
+        when(userMapper.toExpertResponseDto(expert1)).thenReturn(dto1);
+        when(userMapper.toExpertResponseDto(expert2)).thenReturn(dto2);
+
+        // Act
+        List<ExpertResponseDto> result = userService.listPendingExperts();
+
+        // Assert
+        assertEquals(2, result.size());
+        assertTrue(result.containsAll(List.of(dto1, dto2)));
+        verify(repository).findByRoleAndExpertStatus(RoleType.EXPERT, ExpertStatus.NEW);
+        verify(userMapper).toExpertResponseDto(expert1);
+        verify(userMapper).toExpertResponseDto(expert2);
+    }
+
+    @Test
+    void listPendingExperts_shouldReturnEmptyList_whenNoExpertsExist() {
+        // Arrange
+        when(repository.findByRoleAndExpertStatus(RoleType.EXPERT, ExpertStatus.NEW))
+                .thenReturn(List.of());
+
+        // Act
+        List<ExpertResponseDto> result = userService.listPendingExperts();
+
+        // Assert
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+        verify(repository).findByRoleAndExpertStatus(RoleType.EXPERT, ExpertStatus.NEW);
+        verifyNoInteractions(userMapper);
+    }
+
+
+
+
+
+
+
+    @Test
+    void approveExpert_shouldUpdateStatusToApproved_whenExpertExists() {
+        // Arrange
+        Long expertId = 1L;
+        User expert = new User();
+        expert.setId(expertId);
+        expert.setRole(RoleType.EXPERT);
+        expert.setExpertStatus(ExpertStatus.NEW);
+
+        when(repository.findByIdAndRole(expertId, RoleType.EXPERT))
+                .thenReturn(Optional.of(expert));
+
+        // Act
+        userService.approveExpert(expertId);
+
+        // Assert
+        assertEquals(ExpertStatus.APPROVED, expert.getExpertStatus());
+        verify(repository).findByIdAndRole(expertId, RoleType.EXPERT);
+        verify(repository).save(expert);
+    }
+
+    @Test
+    void approveExpert_shouldThrowNotFoundException_whenExpertDoesNotExist() {
+        // Arrange
+        Long expertId = 1L;
+        when(repository.findByIdAndRole(expertId, RoleType.EXPERT))
+                .thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(NotFoundException.class, () -> userService.approveExpert(expertId));
+        verify(repository).findByIdAndRole(expertId, RoleType.EXPERT);
+        verifyNoMoreInteractions(repository);
+    }
+
+
+
+
+
+
+
+
+    @Test
+    void rejectExpert_shouldUpdateStatusToRejected_whenExpertExists() {
+        // Arrange
+        Long expertId = 1L;
+        User expert = new User();
+        expert.setId(expertId);
+        expert.setRole(RoleType.EXPERT);
+        expert.setExpertStatus(ExpertStatus.NEW);
+
+        when(repository.findByIdAndRole(expertId, RoleType.EXPERT))
+                .thenReturn(Optional.of(expert));
+
+        // Act
+        userService.rejectExpert(expertId);
+
+        // Assert
+        assertEquals(ExpertStatus.REJECTED, expert.getExpertStatus());
+        verify(repository).findByIdAndRole(expertId, RoleType.EXPERT);
+        verify(repository).save(expert);
+    }
+
+    @Test
+    void rejectExpert_shouldThrowNotFoundException_whenExpertDoesNotExist() {
+        // Arrange
+        Long expertId = 1L;
+        when(repository.findByIdAndRole(expertId, RoleType.EXPERT))
+                .thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(NotFoundException.class,
+                () -> userService.rejectExpert(expertId));
+
+        verify(repository).findByIdAndRole(expertId, RoleType.EXPERT);
+        verifyNoMoreInteractions(repository);
+    }
+
+
+
+
+
+
+
+    @Test
+    void addExpertToService_shouldAddService_whenExpertAndServiceExist() {
+        // Arrange
+        Long expertId = 1L, serviceId = 2L;
+
+        User expert = new User();
+        expert.setId(expertId);
+        expert.setRole(RoleType.EXPERT);
+        expert.setServices(new HashSet<>());
+
+        Service service = new Service();
+        service.setId(serviceId);
+
+        when(repository.findByIdAndRole(expertId, RoleType.EXPERT))
+                .thenReturn(Optional.of(expert));
+        when(serviceService.findEntityById(serviceId))
+                .thenReturn(Optional.of(service));
+
+        // Act
+        userService.addExpertToService(expertId, serviceId);
+
+        // Assert
+        assertTrue(expert.getServices().contains(service));
+        verify(repository).findByIdAndRole(expertId, RoleType.EXPERT);
+        verify(serviceService).findEntityById(serviceId);
+        verify(repository).save(expert);
+    }
+
+    @Test
+    void addExpertToService_shouldThrowNotFound_whenExpertDoesNotExist() {
+        // Arrange
+        Long expertId = 1L, serviceId = 2L;
+        when(repository.findByIdAndRole(expertId, RoleType.EXPERT))
+                .thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(NotFoundException.class,
+                () -> userService.addExpertToService(expertId, serviceId));
+
+        verify(repository).findByIdAndRole(expertId, RoleType.EXPERT);
+        verifyNoMoreInteractions(repository);
+        verifyNoInteractions(serviceService);
+    }
+
+    @Test
+    void addExpertToService_shouldThrowNotFound_whenServiceDoesNotExist() {
+        // Arrange
+        Long expertId = 1L, serviceId = 2L;
+        User expert = new User();
+        expert.setId(expertId);
+        expert.setRole(RoleType.EXPERT);
+        expert.setServices(new HashSet<>());
+
+        when(repository.findByIdAndRole(expertId, RoleType.EXPERT))
+                .thenReturn(Optional.of(expert));
+        when(serviceService.findEntityById(serviceId))
+                .thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(NotFoundException.class,
+                () -> userService.addExpertToService(expertId, serviceId));
+
+        verify(repository).findByIdAndRole(expertId, RoleType.EXPERT);
+        verify(serviceService).findEntityById(serviceId);
+        verifyNoMoreInteractions(repository);
+    }
+
+
+
+
+
+
+
+
+    @Test
+    void removeExpertFromService_shouldRemoveBothSides_whenExpertAndServiceExist() {
+        // Arrange
+        Long expertId = 1L, serviceId = 2L;
+
+        User expert = new User();
+        expert.setId(expertId);
+        expert.setRole(RoleType.EXPERT);
+
+        Service service = new Service();
+        service.setId(serviceId);
+
+        // لینک اولیه دو طرف
+        expert.setServices(new HashSet<>(Set.of(service)));
+        service.setExperts(new HashSet<>(Set.of(expert)));
+
+        when(repository.findByIdAndRole(expertId, RoleType.EXPERT))
+                .thenReturn(Optional.of(expert));
+        when(serviceService.findEntityById(serviceId))
+                .thenReturn(Optional.of(service));
+
+        // Act
+        userService.removeExpertFromService(expertId, serviceId);
+
+        // Assert
+        assertFalse(expert.getServices().contains(service));
+        assertFalse(service.getExperts().contains(expert));
+        verify(repository).findByIdAndRole(expertId, RoleType.EXPERT);
+        verify(serviceService).findEntityById(serviceId);
+        verify(repository).save(expert);
+        verify(serviceService).save(service);
+    }
+
+    @Test
+    void removeExpertFromService_shouldThrowNotFound_whenExpertDoesNotExist() {
+        // Arrange
+        Long expertId = 1L, serviceId = 2L;
+        when(repository.findByIdAndRole(expertId, RoleType.EXPERT))
+                .thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(NotFoundException.class,
+                () -> userService.removeExpertFromService(expertId, serviceId));
+
+        verify(repository).findByIdAndRole(expertId, RoleType.EXPERT);
+        verifyNoMoreInteractions(repository);
+        verifyNoInteractions(serviceService);
+    }
+
+    @Test
+    void removeExpertFromService_shouldThrowNotFound_whenServiceDoesNotExist() {
+        // Arrange
+        Long expertId = 1L, serviceId = 2L;
+        User expert = new User();
+        expert.setId(expertId);
+        expert.setRole(RoleType.EXPERT);
+        expert.setServices(new HashSet<>());
+
+        when(repository.findByIdAndRole(expertId, RoleType.EXPERT))
+                .thenReturn(Optional.of(expert));
+        when(serviceService.findEntityById(serviceId))
+                .thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(NotFoundException.class,
+                () -> userService.removeExpertFromService(expertId, serviceId));
+
+        verify(repository).findByIdAndRole(expertId, RoleType.EXPERT);
+        verify(serviceService).findEntityById(serviceId);
+        verifyNoMoreInteractions(repository);
+    }
+
+
+
+
+
+
+    @Test
+    void registerCustomer_shouldReturnUserId_whenSuccess() {
+        // Arrange
+        CustomerRegisterDto dto = new CustomerRegisterDto(
+                "ali@example.com",
+                "Ali",
+                "Rezaei",
+                "password123"
+        );
+
+        User user = new User();
+        user.setId(10L);
+
+        when(repository.existsByEmail(dto.email())).thenReturn(false);
+        when(userMapper.fromCustomerRegisterDto(dto)).thenReturn(user);
+        when(passwordEncoder.encode(dto.password())).thenReturn("encodedPass");
+
+        // Act
+        Long result = userService.registerCustomer(dto);
+
+        // Assert
+        assertEquals(10L, result);
+
+        verify(repository).existsByEmail(dto.email());
+        verify(userMapper).fromCustomerRegisterDto(dto);
+        verify(passwordEncoder).encode(dto.password());
+        verify(repository).save(user);
+        verify(walletService).createWalletForUser(user);
+
+        // پسورد باید رمز شده باشه
+        assertEquals("encodedPass", user.getPassword());
+    }
+
+    @Test
+    void registerCustomer_shouldThrowDuplicateResourceException_whenEmailExists() {
+        // Arrange
+        CustomerRegisterDto dto = new CustomerRegisterDto(
+                "ali@example.com",
+                "Ali",
+                "Rezaei",
+                "password123"
+        );
+
+        when(repository.existsByEmail(dto.email())).thenReturn(true);
+
+        // Act & Assert
+        assertThrows(DuplicateResourceException.class,
+                () -> userService.registerCustomer(dto));
+
+        verify(repository).existsByEmail(dto.email());
+        verifyNoMoreInteractions(repository, userMapper, passwordEncoder, walletService);
+    }
+
+
+
+
+
+
+
+    @Test
+    void saveProfileImage_shouldReturnFilename_whenSuccess() throws Exception {
+        // Arrange
+        MultipartFile file = mock(MultipartFile.class);
+        String email = "ali@example.com";
+        String originalName = "photo.png";
+        when(file.getOriginalFilename()).thenReturn(originalName);
+
+        // Mock کردن Files.createDirectories
+        try (MockedStatic<Files> filesMock = mockStatic(Files.class)) {
+            filesMock.when(() -> Files.createDirectories(any(Path.class)))
+                    .thenReturn(null);
+
+            // mock transferTo
+            doNothing().when(file).transferTo(any(Path.class));
+
+            // Act
+            String returnedFilename = userService.saveProfileImage(file, email);
+
+            // Assert
+            assertTrue(returnedFilename.startsWith("expert_" + email));
+            assertTrue(returnedFilename.endsWith("_" + originalName));
+
+            filesMock.verify(() -> Files.createDirectories(any(Path.class)));
+            verify(file).transferTo(any(Path.class));
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+    @Test
+    void loginExpert_shouldThrowIllegalArgument_whenEmailNotFound() {
+        // Arrange
+        ExpertLoginRequestDto dto = new ExpertLoginRequestDto("notfound@example.com", "pass123");
+        when(repository.findByEmail(dto.email())).thenReturn(Optional.empty());
+
+        // Act & Assert
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> userService.loginExpert(dto));
+
+        assertEquals("Invalid email or password.", ex.getMessage());
+        verify(repository).findByEmail(dto.email());
+        verifyNoInteractions(passwordEncoder, userMapper);
+    }
+
+    @Test
+    void loginExpert_shouldThrowIllegalState_whenExpertStatusNotApproved() {
+        // Arrange
+        ExpertLoginRequestDto dto = new ExpertLoginRequestDto("ali@example.com", "pass123");
+        User expert = new User();
+        expert.setExpertStatus(ExpertStatus.PENDING); // not approved
+
+        when(repository.findByEmail(dto.email())).thenReturn(Optional.of(expert));
+
+        // Act & Assert
+        IllegalStateException ex = assertThrows(IllegalStateException.class,
+                () -> userService.loginExpert(dto));
+
+        assertEquals("Your account is not approved yet.", ex.getMessage());
+        verify(repository).findByEmail(dto.email());
+        verifyNoInteractions(passwordEncoder, userMapper);
+    }
+
+    @Test
+    void loginExpert_shouldThrowIllegalArgument_whenPasswordMismatch() {
+        // Arrange
+        ExpertLoginRequestDto dto = new ExpertLoginRequestDto("ali@example.com", "wrongPass");
+        User expert = new User();
+        expert.setExpertStatus(ExpertStatus.APPROVED);
+        expert.setPassword("encodedPass");
+
+        when(repository.findByEmail(dto.email())).thenReturn(Optional.of(expert));
+        when(passwordEncoder.matches(dto.password(), expert.getPassword())).thenReturn(false);
+
+        // Act & Assert
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> userService.loginExpert(dto));
+
+        assertEquals("Invalid email or password.", ex.getMessage());
+        verify(repository).findByEmail(dto.email());
+        verify(passwordEncoder).matches(dto.password(), expert.getPassword());
+        verifyNoInteractions(userMapper);
+    }
+
+
+
+
+
+    @Test
+    void loginCustomer_shouldNotThrow_whenCredentialsValidAndApproved() {
+        // Arrange
+        CustomerLoginDto dto = new CustomerLoginDto("ali@example.com", "pass123");
+        User customer = new User();
+        customer.setEmail(dto.email());
+        customer.setPassword("encodedPass");
+        customer.setExpertStatus(ExpertStatus.APPROVED);
+
+        when(repository.findByEmail(dto.email())).thenReturn(Optional.of(customer));
+        when(passwordEncoder.matches(dto.password(), customer.getPassword())).thenReturn(true);
+
+        // Act & Assert (no exception expected)
+        assertDoesNotThrow(() -> userService.loginCustomer(dto));
+
+        verify(repository).findByEmail(dto.email());
+        verify(passwordEncoder).matches(dto.password(), customer.getPassword());
+    }
+
+    @Test
+    void loginCustomer_shouldThrowIllegalArgument_whenEmailNotFound() {
+        // Arrange
+        CustomerLoginDto dto = new CustomerLoginDto("notfound@example.com", "pass123");
+        when(repository.findByEmail(dto.email())).thenReturn(Optional.empty());
+
+        // Act & Assert
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> userService.loginCustomer(dto));
+
+        assertEquals("Invalid email or password.", ex.getMessage());
+        verify(repository).findByEmail(dto.email());
+        verifyNoInteractions(passwordEncoder);
+    }
+
+    @Test
+    void loginCustomer_shouldThrowIllegalState_whenNotApproved() {
+        // Arrange
+        CustomerLoginDto dto = new CustomerLoginDto("ali@example.com", "pass123");
+        User customer = new User();
+        customer.setExpertStatus(ExpertStatus.PENDING);
+
+        when(repository.findByEmail(dto.email())).thenReturn(Optional.of(customer));
+
+        // Act & Assert
+        IllegalStateException ex = assertThrows(IllegalStateException.class,
+                () -> userService.loginCustomer(dto));
+
+        assertEquals("Your account is not approved yet.", ex.getMessage());
+        verify(repository).findByEmail(dto.email());
+        verifyNoInteractions(passwordEncoder);
+    }
+
+    @Test
+    void loginCustomer_shouldThrowIllegalArgument_whenPasswordMismatch() {
+        // Arrange
+        CustomerLoginDto dto = new CustomerLoginDto("ali@example.com", "wrongPass");
+        User customer = new User();
+        customer.setExpertStatus(ExpertStatus.APPROVED);
+        customer.setPassword("encodedPass");
+
+        when(repository.findByEmail(dto.email())).thenReturn(Optional.of(customer));
+        when(passwordEncoder.matches(dto.password(), customer.getPassword())).thenReturn(false);
+
+        // Act & Assert
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> userService.loginCustomer(dto));
+
+        assertEquals("Invalid email or password.", ex.getMessage());
+        verify(repository).findByEmail(dto.email());
+        verify(passwordEncoder).matches(dto.password(), customer.getPassword());
+    }
+
+
+
+
+
+
+
+    @Test
+    void loginAdmin_shouldNotThrow_whenCredentialsValid() {
+        // Arrange
+        AdminLoginRequestDto dto = new AdminLoginRequestDto("admin@example.com", "pass123");
+        User admin = new User();
+        admin.setEmail(dto.email());
+        admin.setPassword("encodedPass");
+
+        when(repository.findByEmail(dto.email())).thenReturn(Optional.of(admin));
+        when(passwordEncoder.matches(dto.password(), admin.getPassword())).thenReturn(true);
+
+        // Act & Assert
+        assertDoesNotThrow(() -> userService.loginAdmin(dto));
+
+        verify(repository).findByEmail(dto.email());
+        verify(passwordEncoder).matches(dto.password(), admin.getPassword());
+    }
+
+    @Test
+    void loginAdmin_shouldThrowIllegalArgument_whenEmailNotFound() {
+        // Arrange
+        AdminLoginRequestDto dto = new AdminLoginRequestDto("notfound@example.com", "pass123");
+        when(repository.findByEmail(dto.email())).thenReturn(Optional.empty());
+
+        // Act & Assert
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> userService.loginAdmin(dto));
+
+        assertEquals("Invalid email or password.", ex.getMessage());
+        verify(repository).findByEmail(dto.email());
+        verifyNoInteractions(passwordEncoder);
+    }
+
+    @Test
+    void loginAdmin_shouldThrowIllegalArgument_whenPasswordMismatch() {
+        // Arrange
+        AdminLoginRequestDto dto = new AdminLoginRequestDto("admin@example.com", "wrongPass");
+        User admin = new User();
+        admin.setPassword("encodedPass");
+
+        when(repository.findByEmail(dto.email())).thenReturn(Optional.of(admin));
+        when(passwordEncoder.matches(dto.password(), admin.getPassword())).thenReturn(false);
+
+        // Act & Assert
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> userService.loginAdmin(dto));
+
+        assertEquals("Invalid email or password.", ex.getMessage());
+        verify(repository).findByEmail(dto.email());
+        verify(passwordEncoder).matches(dto.password(), admin.getPassword());
+    }
+
+
+
+
+
+
+
+    @Test
+    void updateExpertProfile_shouldUpdateWithoutPhoto_whenValidData() {
+        // Arrange
+        Long id = 1L;
+        MultipartFile multipartFile = new MockMultipartFile("photo.jpg", "New bio".getBytes());
+        ExpertUpdateProfileDto dto = new ExpertUpdateProfileDto("email", "12345678", multipartFile);
+        User expert = new User();
+        expert.setRole(RoleType.EXPERT);
+        expert.setExpertStatus(ExpertStatus.APPROVED);
+
+        when(repository.findById(id)).thenReturn(Optional.of(expert));
+        when(orderService.hasActiveOrderForExpert(id)).thenReturn(false);
+
+        // Act
+        userService.updateExpertProfile(id, dto);
+
+        // Assert
+        verify(userMapper).updateExpertProfileFromDto(dto, expert);
+        verify(repository).save(expert);
+    }
+
+
+
+
+    @Test
+    void updateExpertProfile_shouldThrow_whenExpertNotFound() {
+        Long id = 1L;
+        MultipartFile multipartFile = new MockMultipartFile("photo.jpg", "New bio".getBytes());
+        ExpertUpdateProfileDto dto = new ExpertUpdateProfileDto("email", "12345678", multipartFile);
+        when(repository.findById(id)).thenReturn(Optional.empty());
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> userService.updateExpertProfile(id, dto));
+
+        assertEquals("Expert not found.", ex.getMessage());
+        verifyNoInteractions(orderService, userMapper);
+    }
+
+    @Test
+    void updateExpertProfile_shouldThrow_whenUserIsNotExpert() {
+        Long id = 1L;
+        MultipartFile multipartFile = new MockMultipartFile("photo.jpg", "New bio".getBytes());
+        ExpertUpdateProfileDto dto = new ExpertUpdateProfileDto("email", "12345678", multipartFile);
+        User user = new User();
+        user.setRole(RoleType.CUSTOMER);
+
+        when(repository.findById(id)).thenReturn(Optional.of(user));
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> userService.updateExpertProfile(id, dto));
+
+        assertEquals("User is not expert.", ex.getMessage());
+        verifyNoInteractions(orderService, userMapper);
+    }
+
+    @Test
+    void updateExpertProfile_shouldThrow_whenHasActiveOrder() {
+        Long id = 1L;
+        MultipartFile multipartFile = new MockMultipartFile("photo.jpg", "New bio".getBytes());
+        ExpertUpdateProfileDto dto = new ExpertUpdateProfileDto("email", "12345678", multipartFile);        User expert = new User();
+        expert.setRole(RoleType.EXPERT);
+
+        when(repository.findById(id)).thenReturn(Optional.of(expert));
+        when(orderService.hasActiveOrderForExpert(id)).thenReturn(true);
+
+        IllegalStateException ex = assertThrows(IllegalStateException.class,
+                () -> userService.updateExpertProfile(id, dto));
+
+        assertEquals("You cannot update your profile while you have active jobs.", ex.getMessage());
+        verify(orderService).hasActiveOrderForExpert(id);
+        verifyNoInteractions(userMapper);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    @Test
+    void searchUsers_shouldCallRepositoryWithDefaultPageAndSize_whenNullsInFilter() {
+        // Arrange
+        UserSearchFilterDto filter = new UserSearchFilterDto(
+                null, null, null,
+                null, null, null, null,
+                null, null
+        );
+        Page<User> expectedPage = new PageImpl<>(List.of(new User()));
+        when(repository.findAll(any(Specification.class), eq(PageRequest.of(0, 10))))
+                .thenReturn(expectedPage);
+
+        // Act
+        Page<User> result = userService.searchUsers(filter);
+
+        // Assert
+        assertSame(expectedPage, result);
+        verify(repository).findAll(any(Specification.class), eq(PageRequest.of(0, 10)));
+    }
+
+    @Test
+    void searchUsers_shouldUseFilterPageAndSize_whenProvided() {
+        // Arrange
+        UserSearchFilterDto filter = new UserSearchFilterDto(
+                null, null, null,
+                null, null, null, null,
+                2, 5
+        );
+        Page<User> expectedPage = new PageImpl<>(List.of(new User()));
+        when(repository.findAll(any(Specification.class), eq(PageRequest.of(2, 5))))
+                .thenReturn(expectedPage);
+
+        // Act
+        Page<User> result = userService.searchUsers(filter);
+
+        // Assert
+        assertSame(expectedPage, result);
+        verify(repository).findAll(any(Specification.class), eq(PageRequest.of(2, 5)));
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+    @Test
+    void registerExpert_shouldThrowRuntimeException_whenPhotoSavingFails() throws Exception {
+        // Arrange
+        ExpertRegisterDto dto = new ExpertRegisterDto("Ali", "Rezaei", "ali@example.com", "1234");
+        MultipartFile photo = mock(MultipartFile.class);
+        when(photo.isEmpty()).thenReturn(false);
+
+        try (MockedStatic<FileStorageService> mocked = mockStatic(FileStorageService.class)) {
+            mocked.when(() -> FileStorageService.saveProfilePhoto(photo))
+                    .thenThrow(new IOException("disk error"));
+
+            // Act & Assert
+            RuntimeException ex = assertThrows(RuntimeException.class,
+                    () -> userService.registerExpert(dto, photo));
+
+            assertEquals("Failed to save profile photo", ex.getMessage());
+            verifyNoInteractions(repository, walletService, userMapper);
+        }
+    }
+
+
+
 
 
     @Test
@@ -187,42 +926,6 @@ class UserServiceImplTest {
 
 
 
-
-    @Test
-    void addExpertToService_shouldAddExpertAndServiceAndSaveBoth() {
-
-        Long expertId = 10L;
-        Long serviceId = 20L;
-
-
-        User expert = new User();
-        expert.setId(expertId);
-        expert.setRole(RoleType.EXPERT);
-        expert.setExpertStatus(ExpertStatus.APPROVED);
-        expert.setServices(new HashSet<>());
-
-
-        Service service = new Service();
-        service.setId(serviceId);
-        service.setExperts(new HashSet<>());
-
-        when(repository.findByIdAndRole(expertId, RoleType.EXPERT))
-                .thenReturn(Optional.of(expert));
-        when(serviceService.findEntityById(serviceId))
-                .thenReturn(Optional.of(service));
-
-
-        userService.addExpertToService(expertId, serviceId);
-
-
-        assertTrue(expert.getServices().contains(service), "Expert must contain the service in services set");
-        assertTrue(service.getExperts().contains(expert), "Service must contain the expert in experts set");
-        verify(repository).findByIdAndRole(expertId, RoleType.EXPERT);
-        verify(serviceService).findEntityById(serviceId);
-        verify(repository).save(expert);
-        verify(serviceService).save(service);
-        verifyNoMoreInteractions(repository, serviceService);
-    }
 
 
     @Test
@@ -617,30 +1320,6 @@ class UserServiceImplTest {
         verifyNoMoreInteractions(userMapper, repository);
     }
 
-    @Test
-    void updateExpertProfile_shouldThrowRuntimeExc_whenPhotoSaveFails() throws Exception {
-        Long expertId = 66L;
-        User user = new User();
-        user.setId(expertId);
-        user.setRole(RoleType.EXPERT);
-
-        MultipartFile badPhoto = mock(MultipartFile.class);
-        when(repository.findById(expertId)).thenReturn(Optional.of(user));
-        when(orderService.hasActiveOrderForExpert(expertId)).thenReturn(false);
-        when(expertUpdateProfileDto.profilePhoto()).thenReturn(badPhoto);
-        when(badPhoto.isEmpty()).thenReturn(false);
-
-        doThrow(new IOException("fail"))
-                .when(badPhoto).transferTo(any(Path.class));
-
-        RuntimeException ex = assertThrows(RuntimeException.class,
-                () -> userService.updateExpertProfile(expertId, expertUpdateProfileDto));
-        assertEquals("Failed to save profile photo", ex.getMessage());
-        assertTrue(ex.getCause() instanceof IOException);
-    }
-
-
-
 
 
 
@@ -696,71 +1375,6 @@ class UserServiceImplTest {
 
 
 
-
-
-    @Test
-    void searchUsers_shouldCallRepositoryWithSpecificationAndReturnResult() {
-
-        UserSearchFilterDto filter = new UserSearchFilterDto(
-                RoleType.EXPERT,
-                "ali",
-                "painting",
-                4.0,
-                5.0,
-                2,
-                20
-        );
-
-        Page<User> expected = new PageImpl<>(List.of(new User(), new User()));
-        ArgumentCaptor<Specification<User>> specCaptor = ArgumentCaptor.forClass(Specification.class);
-        ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
-
-        when(repository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(expected);
-
-
-        Page<User> result = userService.searchUsers(filter);
-
-
-        verify(repository).findAll(specCaptor.capture(), pageableCaptor.capture());
-        assertSame(expected, result);
-
-        Pageable usedPageable = pageableCaptor.getValue();
-        assertEquals(2, usedPageable.getPageNumber());
-        assertEquals(20, usedPageable.getPageSize());
-
-        assertNotNull(specCaptor.getValue());
-    }
-
-
-    @Test
-    void searchUsers_shouldUseDefaultPageable_whenPageAndSizeIsNull() {
-
-        UserSearchFilterDto filter = new UserSearchFilterDto(
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null
-        );
-
-        Page<User> expected = Page.empty();
-        ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
-
-        when(repository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(expected);
-
-
-        Page<User> result = userService.searchUsers(filter);
-
-
-        verify(repository).findAll(any(Specification.class), pageableCaptor.capture());
-        assertSame(expected, result);
-
-        Pageable pageable = pageableCaptor.getValue();
-        assertEquals(0, pageable.getPageNumber());
-        assertEquals(10, pageable.getPageSize());
-    }
 
 
 

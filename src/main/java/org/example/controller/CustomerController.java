@@ -5,6 +5,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.customer.CustomerLoginDto;
 import org.example.dto.customer.CustomerRegisterDto;
+import org.example.dto.customer.CustomerRegisterResponseDto;
 import org.example.dto.customer.CustomerUpdateProfileDto;
 import org.example.dto.expert.ExpertUpdateProfileDto;
 import org.example.dto.order.CreateOrderByCustomerDto;
@@ -28,9 +29,10 @@ public class CustomerController {
 
 
     @PostMapping("/register")
-    public ResponseEntity<String> registerCustomer(@RequestBody @Valid CustomerRegisterDto dto) {
-        userService.registerCustomer(dto);
-        return ResponseEntity.ok("Customer registered successfully.");
+    public ResponseEntity<CustomerRegisterResponseDto> registerCustomer(@RequestBody @Valid CustomerRegisterDto dto) {
+        Long l = userService.registerCustomer(dto);
+        CustomerRegisterResponseDto customerRegisterResponseDto = new CustomerRegisterResponseDto(l, dto.firstName(), dto.lastName(), dto.email());
+        return ResponseEntity.ok(customerRegisterResponseDto);
     }
 
     @PostMapping("/login")
@@ -41,7 +43,7 @@ public class CustomerController {
 
 
     @PutMapping("/update-profile")
-    public ResponseEntity<String> updateProfile(
+    public ResponseEntity<String>updateProfile(
             @RequestParam Long customerId,
             @RequestBody @Valid CustomerUpdateProfileDto dto) {
         userService.updateCustomerProfile(customerId, dto);

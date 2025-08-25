@@ -5,6 +5,6 @@ import org.example.dto.payment.PaymentResultDto;
 
 public interface PaymentService {
 
-    PaymentResultDto payForOrder(Long userId, Long orderId);
+    PaymentResultDto payForOrder(Long orderId);
 
 }

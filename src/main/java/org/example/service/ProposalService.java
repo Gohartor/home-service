@@ -1,9 +1,11 @@
 package org.example.service;
 
+import org.example.dto.PageCustom;
 import org.example.dto.proposal.ProposalCreateByExpertDto;
 
 import org.example.dto.proposal.ProposalViewDto;
 import org.example.entity.Proposal;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,6 +21,8 @@ public interface ProposalService {
     void submitProposalByExpert(Long expertId, ProposalCreateByExpertDto dto);
 
     List<ProposalViewDto> getOrderProposals(Long orderId, String sortBy);
+
+    Page<Proposal> getOrderProposalsPage(Long orderId, PageCustom page);
 
     Optional<Proposal> findByOrderIdAndIsAcceptedTrue(Long orderId);
 

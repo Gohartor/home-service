@@ -7,7 +7,5 @@ public record ReviewDto(
         Long orderId,
         Integer rating,
         String comment,
-        String firstName,
-        String lastName,
         ZonedDateTime createDate
 ) {}

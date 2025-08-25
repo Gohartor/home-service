@@ -1,6 +1,10 @@
 package org.example.controller;
 
+import com.sun.security.auth.UserPrincipal;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.example.dto.ApiResponse;
+import org.example.dto.admin.AdminLoginRequestDto;
 import org.example.dto.service.ServiceRequestDto;
 import org.example.dto.service.ServiceResponseDto;
 import org.example.entity.Service;
@@ -9,6 +13,8 @@ import org.example.mapper.UserMapperImpl;
 import org.example.service.ServiceService;
 import org.example.service.UserService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,6 +26,12 @@ public class AdminController {
 
     private final UserService userService;
     private final ServiceService serviceService;
+
+    @PostMapping("/login")
+    public ResponseEntity<ApiResponse> login(@RequestBody AdminLoginRequestDto dto) {
+        userService.loginAdmin(dto);
+        return ResponseEntity.ok(new  ApiResponse("success login admin"));
+    }
 
 
     @PostMapping("/create-service")
@@ -51,15 +63,15 @@ public class AdminController {
 
 
     @PutMapping("/approve-expert/{id}")
-    public ResponseEntity<String> approveExpert(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse> approveExpert(@PathVariable Long id) {
         userService.approveExpert(id);
-        return ResponseEntity.ok("Success approve expert");
+        return ResponseEntity.ok(new  ApiResponse("success approve expert"));
     }
 
     @PutMapping("/add-expert-to-service")
-    public ResponseEntity<?> addExpertToService(@RequestParam Long expertId, @RequestParam Long serviceId) {
+    public ResponseEntity<ApiResponse> addExpertToService(@RequestParam Long expertId, @RequestParam Long serviceId) {
         userService.addExpertToService(expertId, serviceId);
-        return ResponseEntity.ok("Success add expert to service");
+        return ResponseEntity.ok(new ApiResponse("success add expert to service"));
     }
 
 

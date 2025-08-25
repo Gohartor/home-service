@@ -19,7 +19,7 @@ public class SecurityUtil {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Object principal = authentication.getPrincipal();
         if (principal instanceof CustomUserDetails details) {
-            return details.getRole().name(); // مثلا: "CUSTOMER" یا "ADMIN"
+            return details.getRole().name();
         }
         throw new IllegalStateException("Principal is not instance of CustomUserDetails");
     }

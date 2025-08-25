@@ -161,11 +161,39 @@ public class OrderServiceImpl implements OrderService {
             throw new IllegalArgumentException("Proposal does not belong to the order");
         }
 
+
+        order.setTotalPrice(proposal.getProposedPrice());
         order.setStatus(OrderStatus.PROPOSAL_SELECTED);
+        order.setExpert(proposal.getExpert());
         proposal.setAccepted(true);
 
         repository.save(order);
     }
+
+
+
+    @Override
+    @Transactional
+    public void expertArrived(Long orderId, Long expertId) {
+
+        Order order = repository.findById(orderId)
+                .orElseThrow(() -> new NotFoundException("Order not found"));
+
+        if (order.getStatus() != OrderStatus.PROPOSAL_SELECTED) {
+            throw new BusinessException("Order is not ready to be marked as expert arrived.");
+        }
+
+        Proposal acceptedProposal = proposalService.findByOrderIdAndIsAcceptedTrue(orderId)
+                .orElseThrow(() -> new BusinessException("No accepted proposal for this order."));
+
+        if (!acceptedProposal.getExpert().getId().equals(expertId)) {
+            throw new BusinessException("This expert is not assigned to the accepted proposal.");
+        }
+
+        order.setStatus(OrderStatus.EXPERT_ARRIVED);
+        repository.save(order);
+    }
+
 
 
     @Override
@@ -186,9 +214,9 @@ public class OrderServiceImpl implements OrderService {
             throw new BusinessException("No proposed start time set for the accepted proposal!");
         }
 
-        if (ZonedDateTime.now().isBefore(proposal.getProposedStartAt())) {
-            throw new BusinessException("Cannot start the order before the proposed start time.");
-        }
+//        if (ZonedDateTime.now().isBefore(proposal.getProposedStartAt())) {
+//            throw new BusinessException("Cannot start the order before the proposed start time.");
+//        }
 
         order.setStatus(OrderStatus.IN_PROGRESS);
         repository.save(order);
@@ -206,6 +234,7 @@ public class OrderServiceImpl implements OrderService {
         }
 
         order.setStatus(OrderStatus.COMPLETED);
+        order.setDoneAt(ZonedDateTime.now());
         repository.save(order);
     }
 
@@ -266,7 +295,7 @@ public class OrderServiceImpl implements OrderService {
 
         Long currentUserId = SecurityUtil.getCurrentUserId();
         if (!order.getCustomer().getId().equals(currentUserId)) {
-            throw new AccessDeniedException("شما دسترسی به این سفارش را ندارید!");
+            throw new AccessDeniedException("denied to access this user");
         }
 
         return orderMapper.fromOrderToOrderDetailDto(order);

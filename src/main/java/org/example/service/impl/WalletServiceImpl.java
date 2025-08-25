@@ -6,6 +6,7 @@ import org.example.dto.wallet.WalletBalanceDto;
 import org.example.dto.wallet.WalletChargeDto;
 import org.example.dto.wallet.WalletDto;
 import org.example.entity.Transaction;
+import org.example.entity.User;
 import org.example.entity.Wallet;
 import org.example.entity.enumerator.TransactionType;
 import org.example.mapper.TransactionMapper;
@@ -65,6 +66,20 @@ public class WalletServiceImpl implements WalletService {
     @Override
     public Optional<Wallet> findByUser_Id(Long userId) {
         return repository.findByUser_Id(userId);
+    }
+
+    @Override
+    public Wallet createWalletForUser(User user) {
+        Optional<Wallet> existingWallet = repository.findByUser_Id(user.getId());
+        if (existingWallet.isPresent()) {
+            throw new IllegalArgumentException("Wallet already exists for this user.");
+        }
+
+        Wallet wallet = new Wallet();
+        wallet.setUser(user);
+        wallet.setBalance(0.0);
+
+        return repository.save(wallet);
     }
 
 

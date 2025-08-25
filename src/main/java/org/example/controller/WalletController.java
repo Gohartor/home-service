@@ -87,9 +87,11 @@ public class WalletController {
 
 
     @PostMapping("/charge")
-    public ResponseEntity<WalletDto> chargeWallet(@RequestBody @Valid WalletChargeDto chargeDto, Authentication authentication) {
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        Long currentUserId = userDetails.getId();
+    @PreAuthorize("hasAnyRole('CUSTOMER')")
+    public ResponseEntity<WalletDto> chargeWallet(@RequestBody @Valid WalletChargeDto chargeDto,@AuthenticationPrincipal CustomUserDetails principal) {
+//        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        Long currentUserId = principal.getId();
+//        Long currentUserId = userDetails.getId();
         return ResponseEntity.ok(walletService.chargeWallet(currentUserId, chargeDto));
     }
 

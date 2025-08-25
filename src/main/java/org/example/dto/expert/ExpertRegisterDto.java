@@ -21,9 +21,9 @@ public record ExpertRegisterDto(
                 regexp = "^(?=.*[A-Za-z])(?=.*\\d).+$",
                 message = "Password must contain letters and numbers"
         )
-        String password,
+        String password
 
-        ExpertStatus expertStatus
+//        ExpertStatus expertStatus
 
 //        @NotNull(message = "Profile image is required")
 //        MultipartFile profilePhoto

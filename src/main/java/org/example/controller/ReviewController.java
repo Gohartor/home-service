@@ -6,6 +6,7 @@ import org.example.dto.customer.ReviewDto;
 import org.example.dto.expert.ExpertRatingDto;
 import org.example.dto.order.OrderRatingDto;
 import org.example.entity.User;
+import org.example.security.CustomUserDetails;
 import org.example.service.ReviewService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -59,10 +60,12 @@ public class ReviewController {
 
 
     @PostMapping("/add")
+    @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<ReviewDto> addReview(
-            @RequestParam("customerId") Long customerId,
+            @AuthenticationPrincipal CustomUserDetails principal,
             @RequestBody ReviewCreateDto dto)
     {
+        Long customerId = principal.getId();
         return ResponseEntity.ok(reviewService.addReview(customerId, dto));
     }
 

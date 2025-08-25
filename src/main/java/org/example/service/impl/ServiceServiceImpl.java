@@ -51,7 +51,7 @@ public class ServiceServiceImpl implements ServiceService {
     @Transactional
     public ServiceResponseDto createService(ServiceRequestDto dto) {
 
-        Service parent = new Service();
+        Service parent = null;
         if (dto.parentId() != null) {
             parent = repository.findById(dto.parentId())
                     .orElseThrow(() -> new NotFoundException("Parent not found"));

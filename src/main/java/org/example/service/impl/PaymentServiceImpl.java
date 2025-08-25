@@ -36,12 +36,12 @@ public class PaymentServiceImpl implements PaymentService {
 
 
     @Override
-    public PaymentResultDto payForOrder(Long userId, Long orderId) {
+    public PaymentResultDto payForOrder(Long orderId) {
         Order order = orderService.findById(orderId)
                 .orElseThrow(() -> new NotFoundException("Order not found"));
 
-        if (!order.getCustomer().getId().equals(userId))
-            return new PaymentResultDto(false, "You do not own the order");
+        User customer = order.getCustomer();
+
 
         if (!OrderStatus.COMPLETED.equals(order.getStatus()))
             return new PaymentResultDto(false, "Can not complete payment (order status invalid)");
@@ -49,10 +49,13 @@ public class PaymentServiceImpl implements PaymentService {
         if (order.isPaid())
             return new PaymentResultDto(false, "Order is already paid");
 
-        Wallet customerWallet = walletService.findByUser_Id(userId)
+        Wallet customerWallet = walletService.findByUser_Id(customer.getId())
                 .orElseThrow(() -> new NotFoundException("Customer wallet not found"));
 
         Double amount = order.getTotalPrice();
+        if (amount == null) {
+            return new PaymentResultDto(false, "Order total price is not set.");
+        }
 
         if (customerWallet.getBalance() < amount)
             return new PaymentResultDto(false, "Not enough amount");
@@ -84,7 +87,6 @@ public class PaymentServiceImpl implements PaymentService {
 
 
         order.setPaid(true);
-        order.setStatus(OrderStatus.COMPLETED);
 
         applyLatePenaltyOrReward(order);
 

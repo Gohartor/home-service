@@ -1,131 +1,120 @@
 <!DOCTYPE html>
-<html lang="fa">
+<html>
 <head>
     <meta charset="UTF-8">
-    <title>صفحه پرداخت آنلاین</title>
+    <title>Payment Page</title>
     <style>
-        body { font-family: Tahoma, Arial, sans-serif; direction: rtl; margin: 40px; }
-        .box { max-width: 400px; margin: auto; border: 1px solid #ddd; border-radius: 8px; padding: 24px; background: #fafbfc;}
-        label { display: block; margin-top: 16px; font-weight: bold;}
-        .captcha-img { margin: 16px 0 8px 0; border-radius: 4px; }
-        #timer { font-family: monospace; margin-top: 10px; color: #d30; font-size: 1.3em;}
-        #msg { margin: 16px 0; color: #084; font-weight: bold;}
-        button, input { font-size: 1em; padding: 8px; margin-top: 6px;}
-        button:disabled { background: #eee; color: #aaa;}
-        .refresh-btn { margin-right: 10px; font-size: 0.9em;}
-        input[type="text"] { width: 100%;}
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 500px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input[type="text"], input[type="password"] { width: calc(100% - 22px); padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        button { background-color: #4CAF50; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background-color: #45a049; }
+        #countdown { font-size: 1.2em; color: #d9534f; margin-bottom: 15px; }
+        #message { margin-top: 15px; padding: 10px; border-radius: 4px; }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
     </style>
 </head>
 <body>
-<div class="box">
-    <h2>سامانه پرداخت سفارش</h2>
-    <div id="msg"></div>
-    <form id="payForm" autocomplete="off" onsubmit="return false;">
-        <div id="captcha-section">
-            <label for="captchaInput">کپچا را وارد کنید</label>
-            <img id="captchaImage" class="captcha-img" src="" alt="کپچا" height="50">
-            <button type="button" class="refresh-btn" onclick="refreshCaptcha();">🔄 کپچای جدید</button>
-            <input type="text" id="captchaInput" required placeholder="کد داخل تصویر">
-        </div>
-        <label for="cardNumber">شماره کارت</label>
-        <input type="text" id="cardNumber" maxlength="16" required placeholder="مثلاً ۶۰۳۷۹۹۷۵۴۴۲۱۰۰۱۰">
-        <label for="cvv2">CVV2</label>
-        <input type="text" id="cvv2" maxlength="4" required placeholder="مثلاً ۵۲۳">
-        <div id="timer">10:00</div>
-        <button id="payBtn" type="submit">پرداخت</button>
+<div class="container">
+    <h1>Complete Your Payment for Order: ${orderId}</h1>
+    <div id="countdown">Time remaining: <span id="timer"></span></div>
+
+    <form id="paymentForm">
+        <input type="hidden" id="paymentSessionToken" value="${token}">
+
+        <label for="cardNumber">Card Number:</label>
+        <input type="text" id="cardNumber" name="cardNumber" required placeholder="16-digit card number">
+
+        <label for="expiryDate">Expiry Date (MM/YY):</label>
+        <input type="text" id="expiryDate" name="expiryDate" required placeholder="MM/YY">
+
+        <label for="cvv">CVV:</label>
+        <input type="text" id="cvv" name="cvv" required placeholder="3 or 4 digits">
+
+        <label for="captcha">Enter Captcha:</label>
+        <img src="${captchaImage}" alt="Captcha Image" style="margin-bottom: 10px; border: 1px solid #ddd;">
+        <input type="text" id="captcha" name="captcha" required placeholder="Enter characters from image">
+
+        <button type="submit">Pay Now</button>
     </form>
+    <div id="message"></div>
 </div>
 
 <script>
-    const orderId = 2;
 
-    let paymentToken = null;
-    let expireAt = Date.now() + 600000;
-    let timerInterval = null;
+    const paymentSessionToken = document.getElementById('paymentSessionToken').value;
+    const expiresAt = new Date("${expiresAt}");
 
-    async function fetchInit() {
-        console.log("fetchInit started");
+    function updateCountdown() {
+        const now = new Date();
+        const timeLeft = expiresAt - now;
 
-        document.getElementById('msg').innerText = '';
-        document.getElementById('msg').style.color = '#084';
-        document.getElementById('payBtn').disabled = true;
-        try {
-            const resp = await fetch(`/api/payments/init/${orderId}`);
-            if (!resp.ok) throw new Error('خطا در دریافت اطلاعات پرداخت');
-            const data = await resp.json();
-            paymentToken = data.token;
-
-            console.log('captchaImageBase64:', data.captchaImageBase64);
-            document.getElementById('captchaImage').src = "data:image/png;base64," + data.captchaImageBase64;
-
-            expireAt = Date.now() + 10 * 60 * 1000;
-            startTimer();
-            document.getElementById('payBtn').disabled = false;
-        } catch (e) {
-            document.getElementById('msg').innerText = e.message || 'خطای شبکه!';
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            document.getElementById('timer').textContent = "Expired!";
+            document.getElementById('paymentForm').style.pointerEvents = 'none';
+            document.getElementById('message').className = 'error';
+            document.getElementById('message').textContent = 'Payment session has expired.';
+            return;
         }
-        console.log("API response received:", data);
+
+        const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+        document.getElementById('timer').textContent = `${minutes}m ${seconds}s`;
     }
 
-    function refreshCaptcha() {
-        fetchInit();
-        document.getElementById('captchaInput').value = '';
-    }
+    const timerInterval = setInterval(updateCountdown, 1000);
+    updateCountdown();
 
-    function startTimer() {
-        if(timerInterval) clearInterval(timerInterval);
-        timerInterval = setInterval(() => {
-            let seconds = Math.floor((expireAt - Date.now()) / 1000);
-            if (seconds <= 0) {
-                clearInterval(timerInterval);
-                document.getElementById('timer').innerText = '۰۰:۰۰';
-                document.getElementById('payBtn').disabled = true;
-                document.getElementById('msg').style.color = '#d30';
-                document.getElementById('msg').innerText = 'مهلت پرداخت تمام شد.';
-            } else {
-                const m = String(Math.floor(seconds / 60)).padStart(2, '0');
-                const s = String(seconds % 60).padStart(2, '0');
-                document.getElementById('timer').innerText = `${m}:${s}`;
-            }
-        }, 1000);
-    }
+    document.getElementById('paymentForm').addEventListener('submit', async function(event) {
+        event.preventDefault();
 
-    document.getElementById('payForm').onsubmit = async function() {
-        document.getElementById('payBtn').disabled = true;
-        document.getElementById('msg').innerText = 'در حال ارسال...';
-        document.getElementById('msg').style.color = '#555';
-        const payReq = {
-            token: paymentToken,
-            captcha: document.getElementById('captchaInput').value,
-            cardNumber: document.getElementById('cardNumber').value,
-            cvv2: document.getElementById('cvv2').value
-        };
+        const cardNumber = document.getElementById('cardNumber').value;
+        const expiryDate = document.getElementById('expiryDate').value;
+        const cvv = document.getElementById('cvv').value;
+        const captcha = document.getElementById('captcha').value;
+        const messageDiv = document.getElementById('message');
+
+
+
         try {
-            const resp = await fetch('/api/payments/pay', {
+            const response = await fetch('/payment/process', {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(payReq)
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    token: paymentSessionToken,
+                    captcha: captcha,
+                    cardNumber: cardNumber,
+                    expiryDate: expiryDate,
+                    cvv: cvv
+                })
             });
-            const resData = await resp.json();
-            if(resp.ok) {
-                document.getElementById('msg').innerText = resData.message || 'پرداخت موفق بود!';
-                document.getElementById('msg').style.color = '#084';
-                document.getElementById('payBtn').disabled = true;
-                clearInterval(timerInterval);
-            } else {
-                document.getElementById('msg').innerText = resData.message || 'پرداخت ناموفق بود!';
-                document.getElementById('msg').style.color = '#d30';
-                document.getElementById('payBtn').disabled = false;
-                if(resData.captchaInvalid || resData.code === "EXPIRED") refreshCaptcha();
-            }
-        } catch(e){
-            document.getElementById('msg').innerText = 'خطای ارتباط با سرور!';
-            document.getElementById('msg').style.color = '#d30';
-            document.getElementById('payBtn').disabled = false;
-        }
-    };
 
-    window.onload = fetchInit;
+            const responseText = await response.text();
+
+            if (response.ok) {
+                messageDiv.className = 'success';
+                messageDiv.textContent = responseText;
+                document.getElementById('paymentForm').reset();
+            } else {
+                messageDiv.className = 'error';
+                try {
+                    const errorData = JSON.parse(responseText);
+                    messageDiv.textContent = errorData.message || 'Payment failed.';
+                } catch (e) {
+                    messageDiv.textContent = responseText || 'Payment failed.';
+                }
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            messageDiv.className = 'error';
+            messageDiv.textContent = 'An unexpected error occurred.';
+        }
+    });
 </script>
 </body>
 </html>
